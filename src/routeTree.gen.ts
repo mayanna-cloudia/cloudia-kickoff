@@ -9,9 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ClientesIndexRouteImport } from './routes/clientes.index'
+import { Route as ClientesNovoRouteImport } from './routes/clientes.novo'
+import { Route as AlteracoesNovaRouteImport } from './routes/alteracoes.nova'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -22,35 +31,92 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientesIndexRoute = ClientesIndexRouteImport.update({
+  id: '/clientes/',
+  path: '/clientes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesNovoRoute = ClientesNovoRouteImport.update({
+  id: '/clientes/novo',
+  path: '/clientes/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlteracoesNovaRoute = AlteracoesNovaRouteImport.update({
+  id: '/alteracoes/nova',
+  path: '/alteracoes/nova',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/settings': typeof SettingsRoute
+  '/alteracoes/nova': typeof AlteracoesNovaRoute
+  '/clientes/novo': typeof ClientesNovoRoute
+  '/clientes/': typeof ClientesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/settings': typeof SettingsRoute
+  '/alteracoes/nova': typeof AlteracoesNovaRoute
+  '/clientes/novo': typeof ClientesNovoRoute
+  '/clientes': typeof ClientesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/settings': typeof SettingsRoute
+  '/alteracoes/nova': typeof AlteracoesNovaRoute
+  '/clientes/novo': typeof ClientesNovoRoute
+  '/clientes/': typeof ClientesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/settings'
+    | '/alteracoes/nova'
+    | '/clientes/novo'
+    | '/clientes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth'
-  id: '__root__' | '/' | '/auth'
+  to:
+    | '/'
+    | '/auth'
+    | '/settings'
+    | '/alteracoes/nova'
+    | '/clientes/novo'
+    | '/clientes'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/settings'
+    | '/alteracoes/nova'
+    | '/clientes/novo'
+    | '/clientes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  SettingsRoute: typeof SettingsRoute
+  AlteracoesNovaRoute: typeof AlteracoesNovaRoute
+  ClientesNovoRoute: typeof ClientesNovoRoute
+  ClientesIndexRoute: typeof ClientesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -65,12 +131,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clientes/': {
+      id: '/clientes/'
+      path: '/clientes'
+      fullPath: '/clientes/'
+      preLoaderRoute: typeof ClientesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes/novo': {
+      id: '/clientes/novo'
+      path: '/clientes/novo'
+      fullPath: '/clientes/novo'
+      preLoaderRoute: typeof ClientesNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alteracoes/nova': {
+      id: '/alteracoes/nova'
+      path: '/alteracoes/nova'
+      fullPath: '/alteracoes/nova'
+      preLoaderRoute: typeof AlteracoesNovaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  SettingsRoute: SettingsRoute,
+  AlteracoesNovaRoute: AlteracoesNovaRoute,
+  ClientesNovoRoute: ClientesNovoRoute,
+  ClientesIndexRoute: ClientesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
