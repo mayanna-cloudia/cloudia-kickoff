@@ -1,13 +1,12 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, ListPlus, Users, Settings, LogOut, Cloud } from "lucide-react";
+import { LayoutDashboard, Presentation, Users, LogOut, Cloud } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/alteracoes/nova", label: "Nova alteração", icon: ListPlus },
+  { to: "/", label: "Kickoffs", icon: LayoutDashboard },
+  { to: "/kickoffs/novo", label: "Novo kickoff", icon: Presentation },
   { to: "/clientes", label: "Clientes", icon: Users },
-  { to: "/settings", label: "Ajustes", icon: Settings },
 ];
 
 export function AppShell({ children, userEmail }: { children: React.ReactNode; userEmail?: string }) {
@@ -22,8 +21,8 @@ export function AppShell({ children, userEmail }: { children: React.ReactNode; u
             <Cloud className="h-4 w-4" />
           </div>
           <div className="leading-tight">
-            <div className="text-sm font-semibold">Cloudia Hub</div>
-            <div className="text-[11px] text-muted-foreground">Implementação</div>
+            <div className="text-sm font-semibold">Kickoff Visual</div>
+            <div className="text-[11px] text-muted-foreground">Cloudia</div>
           </div>
         </div>
         <nav className="flex-1 px-3 py-2 space-y-1">

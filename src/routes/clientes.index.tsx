@@ -8,7 +8,7 @@ import { Plus, Users } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/clientes/")({
-  head: () => ({ meta: [{ title: "Clientes — Cloudia Hub" }] }),
+  head: () => ({ meta: [{ title: "Clientes — Cloudia" }] }),
   component: () => (
     <AuthGate>
       <Toaster />
@@ -24,7 +24,7 @@ type Row = {
   gerente: string | null;
   configurador: string | null;
   status: string;
-  alteracoes: { count: number }[];
+  kickoffs: { count: number }[];
 };
 
 function ClientesList() {
@@ -32,24 +32,30 @@ function ClientesList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from("clientes")
-      .select("id,nome,especialidade,gerente,configurador,status, alteracoes(count)")
-      .order("nome")
-      .then(({ data }) => {
-        setRows((data as any) ?? []);
-        setLoading(false);
-      });
+    (async () => {
+      const { data } = await supabase
+        .from("clientes")
+        .select("id,nome,especialidade,gerente,configurador,status,kickoffs(count)")
+        .order("nome");
+      setRows((data as any) ?? []);
+      setLoading(false);
+    })();
   }, []);
 
   return (
-    <div className="px-8 py-8 max-w-7xl mx-auto">
-      <header className="mb-6 flex items-end justify-between">
+    <div className="px-8 py-8 max-w-6xl mx-auto">
+      <header className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Clientes</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Base compartilhada entre o Tracker e o Kickoff.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Clínicas cadastradas para implementação.
+          </p>
         </div>
-        <Link to="/clientes/novo"><Button><Plus className="h-4 w-4 mr-1.5" /> Novo cliente</Button></Link>
+        <Link to="/clientes/novo">
+          <Button>
+            <Plus className="h-4 w-4 mr-1.5" /> Novo cliente
+          </Button>
+        </Link>
       </header>
 
       {loading ? (
@@ -60,34 +66,34 @@ function ClientesList() {
             <Users className="h-5 w-5" />
           </div>
           <h3 className="text-lg font-medium">Nenhum cliente cadastrado</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Cadastre o primeiro cliente para começar a registrar alterações.</p>
-          <Link to="/clientes/novo" className="inline-block mt-5"><Button>Cadastrar cliente</Button></Link>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Cadastre um cliente antes de criar um kickoff.
+          </p>
+          <Link to="/clientes/novo" className="inline-block mt-5">
+            <Button>Cadastrar primeiro cliente</Button>
+          </Link>
         </Card>
       ) : (
         <Card className="border-border overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="text-xs uppercase tracking-wide text-muted-foreground bg-muted/40">
+            <thead className="text-xs uppercase tracking-wide text-muted-foreground">
               <tr className="border-b border-border">
-                <th className="text-left font-medium px-6 py-3">Cliente</th>
+                <th className="text-left font-medium px-6 py-3">Nome</th>
                 <th className="text-left font-medium px-4 py-3">Especialidade</th>
                 <th className="text-left font-medium px-4 py-3">Gerente</th>
                 <th className="text-left font-medium px-4 py-3">Configurador</th>
-                <th className="text-left font-medium px-4 py-3">Alterações</th>
-                <th className="text-left font-medium px-6 py-3">Status</th>
+                <th className="text-right font-medium px-6 py-3">Kickoffs</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} className="border-b border-border/60 last:border-0 hover:bg-accent/40">
-                  <td className="px-6 py-3 font-medium">{r.nome}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.especialidade ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.gerente ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.configurador ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.alteracoes?.[0]?.count ?? 0}</td>
-                  <td className="px-6 py-3">
-                    <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs capitalize">
-                      {r.status}
-                    </span>
+              {rows.map((c) => (
+                <tr key={c.id} className="border-b border-border/60 last:border-0">
+                  <td className="px-6 py-3 font-medium">{c.nome}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{c.especialidade ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{c.gerente ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{c.configurador ?? "—"}</td>
+                  <td className="px-6 py-3 text-right text-muted-foreground">
+                    {c.kickoffs?.[0]?.count ?? 0}
                   </td>
                 </tr>
               ))}

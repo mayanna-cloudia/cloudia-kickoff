@@ -7,57 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
-      alteracoes: {
-        Row: {
-          cliente_id: string
-          configurador: string
-          criado_em: string
-          descricao: string | null
-          fase: string
-          id: string
-          origem: string
-          tamanho: string
-          tipo: string
-        }
-        Insert: {
-          cliente_id: string
-          configurador: string
-          criado_em?: string
-          descricao?: string | null
-          fase: string
-          id?: string
-          origem: string
-          tamanho: string
-          tipo: string
-        }
-        Update: {
-          cliente_id?: string
-          configurador?: string
-          criado_em?: string
-          descricao?: string | null
-          fase?: string
-          id?: string
-          origem?: string
-          tamanho?: string
-          tipo?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "alteracoes_cliente_id_fkey"
-            columns: ["cliente_id"]
-            isOneToOne: false
-            referencedRelation: "clientes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       clientes: {
         Row: {
           configurador: string | null
@@ -115,23 +69,70 @@ export type Database = {
         }
         Relationships: []
       }
-      settings: {
+      kickoffs: {
         Row: {
-          alteracoes_inclusas: number | null
-          atualizado_em: string
+          cliente_id: string
+          criado_em: string
+          data_reuniao: string | null
+          desafio_principal: string | null
+          expectativa: string | null
+          ferias_programadas: string | null
+          finalizado_em: string | null
           id: string
+          mapeamento: Json | null
+          mensagens_demo: Json | null
+          notas_internas: string | null
+          participantes_cliente: Json | null
+          passo_atual: number
+          status: string
+          validacoes_contratuais: Json | null
+          variacao_demo: string | null
         }
         Insert: {
-          alteracoes_inclusas?: number | null
-          atualizado_em?: string
+          cliente_id: string
+          criado_em?: string
+          data_reuniao?: string | null
+          desafio_principal?: string | null
+          expectativa?: string | null
+          ferias_programadas?: string | null
+          finalizado_em?: string | null
           id?: string
+          mapeamento?: Json | null
+          mensagens_demo?: Json | null
+          notas_internas?: string | null
+          participantes_cliente?: Json | null
+          passo_atual?: number
+          status?: string
+          validacoes_contratuais?: Json | null
+          variacao_demo?: string | null
         }
         Update: {
-          alteracoes_inclusas?: number | null
-          atualizado_em?: string
+          cliente_id?: string
+          criado_em?: string
+          data_reuniao?: string | null
+          desafio_principal?: string | null
+          expectativa?: string | null
+          ferias_programadas?: string | null
+          finalizado_em?: string | null
           id?: string
+          mapeamento?: Json | null
+          mensagens_demo?: Json | null
+          notas_internas?: string | null
+          participantes_cliente?: Json | null
+          passo_atual?: number
+          status?: string
+          validacoes_contratuais?: Json | null
+          variacao_demo?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "kickoffs_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

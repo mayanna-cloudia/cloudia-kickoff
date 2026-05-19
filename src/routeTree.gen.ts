@@ -13,6 +13,8 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ClientesIndexRouteImport } from './routes/clientes.index'
+import { Route as KickoffsNovoRouteImport } from './routes/kickoffs.novo'
+import { Route as KickoffsIdRouteImport } from './routes/kickoffs.$id'
 import { Route as ClientesNovoRouteImport } from './routes/clientes.novo'
 import { Route as AlteracoesNovaRouteImport } from './routes/alteracoes.nova'
 
@@ -36,6 +38,16 @@ const ClientesIndexRoute = ClientesIndexRouteImport.update({
   path: '/clientes/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KickoffsNovoRoute = KickoffsNovoRouteImport.update({
+  id: '/kickoffs/novo',
+  path: '/kickoffs/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KickoffsIdRoute = KickoffsIdRouteImport.update({
+  id: '/kickoffs/$id',
+  path: '/kickoffs/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientesNovoRoute = ClientesNovoRouteImport.update({
   id: '/clientes/novo',
   path: '/clientes/novo',
@@ -53,6 +65,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/alteracoes/nova': typeof AlteracoesNovaRoute
   '/clientes/novo': typeof ClientesNovoRoute
+  '/kickoffs/$id': typeof KickoffsIdRoute
+  '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes/': typeof ClientesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +75,8 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/alteracoes/nova': typeof AlteracoesNovaRoute
   '/clientes/novo': typeof ClientesNovoRoute
+  '/kickoffs/$id': typeof KickoffsIdRoute
+  '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes': typeof ClientesIndexRoute
 }
 export interface FileRoutesById {
@@ -70,6 +86,8 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/alteracoes/nova': typeof AlteracoesNovaRoute
   '/clientes/novo': typeof ClientesNovoRoute
+  '/kickoffs/$id': typeof KickoffsIdRoute
+  '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes/': typeof ClientesIndexRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +98,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/alteracoes/nova'
     | '/clientes/novo'
+    | '/kickoffs/$id'
+    | '/kickoffs/novo'
     | '/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +108,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/alteracoes/nova'
     | '/clientes/novo'
+    | '/kickoffs/$id'
+    | '/kickoffs/novo'
     | '/clientes'
   id:
     | '__root__'
@@ -96,6 +118,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/alteracoes/nova'
     | '/clientes/novo'
+    | '/kickoffs/$id'
+    | '/kickoffs/novo'
     | '/clientes/'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +129,8 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   AlteracoesNovaRoute: typeof AlteracoesNovaRoute
   ClientesNovoRoute: typeof ClientesNovoRoute
+  KickoffsIdRoute: typeof KickoffsIdRoute
+  KickoffsNovoRoute: typeof KickoffsNovoRoute
   ClientesIndexRoute: typeof ClientesIndexRoute
 }
 
@@ -138,6 +164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kickoffs/novo': {
+      id: '/kickoffs/novo'
+      path: '/kickoffs/novo'
+      fullPath: '/kickoffs/novo'
+      preLoaderRoute: typeof KickoffsNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kickoffs/$id': {
+      id: '/kickoffs/$id'
+      path: '/kickoffs/$id'
+      fullPath: '/kickoffs/$id'
+      preLoaderRoute: typeof KickoffsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clientes/novo': {
       id: '/clientes/novo'
       path: '/clientes/novo'
@@ -161,8 +201,20 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   AlteracoesNovaRoute: AlteracoesNovaRoute,
   ClientesNovoRoute: ClientesNovoRoute,
+  KickoffsIdRoute: KickoffsIdRoute,
+  KickoffsNovoRoute: KickoffsNovoRoute,
   ClientesIndexRoute: ClientesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
