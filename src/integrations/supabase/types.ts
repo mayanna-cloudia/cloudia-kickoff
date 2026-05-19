@@ -14,7 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alteracoes: {
+        Row: {
+          cliente_id: string
+          configurador: string
+          criado_em: string
+          descricao: string | null
+          fase: string
+          id: string
+          origem: string
+          tamanho: string
+          tipo: string
+        }
+        Insert: {
+          cliente_id: string
+          configurador: string
+          criado_em?: string
+          descricao?: string | null
+          fase: string
+          id?: string
+          origem: string
+          tamanho: string
+          tipo: string
+        }
+        Update: {
+          cliente_id?: string
+          configurador?: string
+          criado_em?: string
+          descricao?: string | null
+          fase?: string
+          id?: string
+          origem?: string
+          tamanho?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alteracoes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clientes: {
+        Row: {
+          configurador: string | null
+          criado_em: string
+          data_inicio: string | null
+          especialidade: string | null
+          forma_pagamento: string | null
+          gerente: string | null
+          id: string
+          medico_contato: string | null
+          mensalidade: number | null
+          nome: string
+          num_usuarios: number | null
+          pipedrive_lead_id: string | null
+          plano: string | null
+          status: string
+          vencimento_dia: number | null
+          vendedor: string | null
+        }
+        Insert: {
+          configurador?: string | null
+          criado_em?: string
+          data_inicio?: string | null
+          especialidade?: string | null
+          forma_pagamento?: string | null
+          gerente?: string | null
+          id?: string
+          medico_contato?: string | null
+          mensalidade?: number | null
+          nome: string
+          num_usuarios?: number | null
+          pipedrive_lead_id?: string | null
+          plano?: string | null
+          status?: string
+          vencimento_dia?: number | null
+          vendedor?: string | null
+        }
+        Update: {
+          configurador?: string | null
+          criado_em?: string
+          data_inicio?: string | null
+          especialidade?: string | null
+          forma_pagamento?: string | null
+          gerente?: string | null
+          id?: string
+          medico_contato?: string | null
+          mensalidade?: number | null
+          nome?: string
+          num_usuarios?: number | null
+          pipedrive_lead_id?: string | null
+          plano?: string | null
+          status?: string
+          vencimento_dia?: number | null
+          vendedor?: string | null
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          alteracoes_inclusas: number | null
+          atualizado_em: string
+          id: string
+        }
+        Insert: {
+          alteracoes_inclusas?: number | null
+          atualizado_em?: string
+          id?: string
+        }
+        Update: {
+          alteracoes_inclusas?: number | null
+          atualizado_em?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
