@@ -17,6 +17,7 @@ import { Route as KickoffsNovoRouteImport } from './routes/kickoffs.novo'
 import { Route as KickoffsIdRouteImport } from './routes/kickoffs.$id'
 import { Route as ClientesNovoRouteImport } from './routes/clientes.novo'
 import { Route as AlteracoesNovaRouteImport } from './routes/alteracoes.nova'
+import { Route as ClientesIdFluxosRouteImport } from './routes/clientes.$id.fluxos'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -58,6 +59,11 @@ const AlteracoesNovaRoute = AlteracoesNovaRouteImport.update({
   path: '/alteracoes/nova',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientesIdFluxosRoute = ClientesIdFluxosRouteImport.update({
+  id: '/clientes/$id/fluxos',
+  path: '/clientes/$id/fluxos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/kickoffs/$id': typeof KickoffsIdRoute
   '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes/': typeof ClientesIndexRoute
+  '/clientes/$id/fluxos': typeof ClientesIdFluxosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/kickoffs/$id': typeof KickoffsIdRoute
   '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes': typeof ClientesIndexRoute
+  '/clientes/$id/fluxos': typeof ClientesIdFluxosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/kickoffs/$id': typeof KickoffsIdRoute
   '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes/': typeof ClientesIndexRoute
+  '/clientes/$id/fluxos': typeof ClientesIdFluxosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/kickoffs/$id'
     | '/kickoffs/novo'
     | '/clientes/'
+    | '/clientes/$id/fluxos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/kickoffs/$id'
     | '/kickoffs/novo'
     | '/clientes'
+    | '/clientes/$id/fluxos'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/kickoffs/$id'
     | '/kickoffs/novo'
     | '/clientes/'
+    | '/clientes/$id/fluxos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   KickoffsIdRoute: typeof KickoffsIdRoute
   KickoffsNovoRoute: typeof KickoffsNovoRoute
   ClientesIndexRoute: typeof ClientesIndexRoute
+  ClientesIdFluxosRoute: typeof ClientesIdFluxosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlteracoesNovaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clientes/$id/fluxos': {
+      id: '/clientes/$id/fluxos'
+      path: '/clientes/$id/fluxos'
+      fullPath: '/clientes/$id/fluxos'
+      preLoaderRoute: typeof ClientesIdFluxosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   KickoffsIdRoute: KickoffsIdRoute,
   KickoffsNovoRoute: KickoffsNovoRoute,
   ClientesIndexRoute: ClientesIndexRoute,
+  ClientesIdFluxosRoute: ClientesIdFluxosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

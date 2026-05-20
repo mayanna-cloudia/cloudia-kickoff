@@ -116,7 +116,7 @@ function NovoCliente() {
     const { error } = await supabase.from("clientes").insert({
       nome: f.nome,
       medico_contato: f.medico_contato || null,
-      idclinic: f.idclinic ? Number(f.idclinic) : null,
+      
       especialidade: f.especialidade || null,
       data_inicio: f.data_inicio || null,
       vendedor: f.vendedor || null,

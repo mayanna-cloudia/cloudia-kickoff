@@ -20,6 +20,8 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
+import { FluxoViewer } from "@/components/fluxo/fluxo-viewer";
+import type { VariacaoFluxo } from "@/lib/fluxos-padrao";
 
 type Cliente = {
   id: string;
@@ -732,7 +734,7 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
   },
 };
 
-export function Passo7DemoAoVivo({ data, setData, modoApresentacao }: StepProps) {
+export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: StepProps) {
   const variacaoAtual = (data.variacao_demo ?? "chatgpt") as string;
   const mensagensCustomizadas = data.mensagens_demo?.[variacaoAtual];
   const demoInicial = DEMOS_INICIAIS[variacaoAtual];
@@ -971,6 +973,14 @@ export function Passo7DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
           )}
         </div>
       </div>
+
+      {/* Fluxo do robô (read-only) */}
+      <section className="mt-10">
+        {!modoApresentacao && (
+          <h3 className="text-lg font-semibold mb-3">Fluxo do robô</h3>
+        )}
+        <FluxoViewer clienteId={cliente.id} variacao={variacaoAtual as VariacaoFluxo} />
+      </section>
     </div>
   );
 }
