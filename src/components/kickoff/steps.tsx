@@ -20,6 +20,8 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
+import { FluxoViewer } from "@/components/fluxo/fluxo-viewer";
+import type { VariacaoFluxo } from "@/lib/fluxos-padrao";
 
 type Cliente = {
   id: string;
@@ -971,6 +973,14 @@ export function Passo7DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
           )}
         </div>
       </div>
+
+      {/* Fluxo do robô (read-only) */}
+      <section className="mt-10">
+        {!modoApresentacao && (
+          <h3 className="text-lg font-semibold mb-3">Fluxo do robô</h3>
+        )}
+        <FluxoViewer clienteId={(data as any).cliente_id ?? ""} variacao={variacaoAtual as VariacaoFluxo} />
+      </section>
     </div>
   );
 }
