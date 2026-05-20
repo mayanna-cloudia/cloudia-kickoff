@@ -728,41 +728,98 @@ export function Passo7Mapeamento({ data, setData, modoApresentacao }: StepProps)
   );
 }
 
-// ---------- PASSO 8: Próximos passos (mantido por enquanto, vamos repensar depois) ----------
-export function Passo8ProximosPassos({ cliente, data }: StepProps) {
+// ---------- PASSO 8: Próximos passos ----------
+// 3 compromissos finais com o cliente + campo de pendências da reunião.
+// Pra editar os textos: altere o array COMPROMISSOS_FINAIS abaixo.
+// Cada compromisso tem: icon (lucide-react), titulo, descricao.
+const COMPROMISSOS_FINAIS = [
+  {
+    icon: Users,
+    titulo: "Participação do responsável",
+    descricao:
+      "A participação ativa do responsável pela implementação é essencial. É essa pessoa que vai testar o robô, dar feedbacks e garantir que tudo esteja redondo até a utilização final.",
+  },
+  {
+    icon: Clock,
+    titulo: "Seguir o cronograma",
+    descricao:
+      "Nosso processo é desenhado pra durar 30 dias. Se algum dos prazos atrasar (configuração, testes, treinamento), o cronograma todo desliza e a clínica fica mais tempo sem usar o robô.",
+  },
+  {
+    icon: MessageCircle,
+    titulo: "Pendências da reunião",
+    descricao:
+      "Se ficou alguma pendência levantada hoje (dúvida, ajuste, decisão pendente), envie diretamente para o seu gerente de contas pelo WhatsApp.",
+  },
+];
+
+export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao }: StepProps) {
   const validacoes = data.validacoes_contratuais ?? {};
   const confirmados = Object.values(validacoes).filter((v: any) => v?.confirmado).length;
   const mapeamento = data.mapeamento ?? {};
   const respostas = Object.values(mapeamento).filter((v) => v).length;
 
   return (
-    <div className="max-w-3xl mx-auto py-4">
+    <div className="max-w-4xl mx-auto py-4">
       <h2 className="text-2xl font-semibold mb-2">Próximos passos</h2>
-      <p className="text-sm text-muted-foreground mb-8">Vamos iniciar suas configurações!</p>
+      <p className="text-sm text-muted-foreground mb-8">
+        Pra que tudo dê certo, esses 3 pontos são importantes:
+      </p>
 
-      <Card className="p-6 border-border mb-6">
-        <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-4">
-          Resumo da reunião
-        </h3>
-        <div className="space-y-3 text-sm">
-          <Row label="Cliente" valor={cliente.nome} />
-          <Row label="Gerente de contas" valor={cliente.gerente ?? "—"} />
-          <Row label="Validações contratuais" valor={`${confirmados} de 5 confirmadas`} />
-          <Row label="Respostas de mapeamento" valor={`${respostas} de 10 preenchidas`} />
-          <Row label="Desafio principal capturado" valor={data.desafio_principal ? "Sim" : "Não"} />
-          <Row label="Variação demo apresentada" valor={data.variacao_demo ?? "—"} />
-        </div>
+      {/* 3 compromissos visuais (aparecem em ambos os modos) */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        {COMPROMISSOS_FINAIS.map((c, i) => {
+          const Icon = c.icon;
+          return (
+            <Card key={i} className="p-5 border-cloudia/30 bg-cloudia/5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-cloudia text-white mb-3">
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="text-sm font-medium mb-2">{c.titulo}</div>
+              <p className="text-xs text-muted-foreground leading-relaxed">{c.descricao}</p>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Campo de pendências — capturado durante a reunião */}
+      <Card className="p-5 border-border mb-6">
+        <Label className="text-sm font-medium">
+          Pendências levantadas nesta reunião
+        </Label>
+        <p className="text-xs text-muted-foreground mt-1 mb-3">
+          Anote qualquer ponto que ficou em aberto durante a kickoff (dúvidas técnicas, decisões pendentes,
+          ajustes que o cliente quer revisar, etc).
+        </p>
+        {modoApresentacao ? (
+          <p className="text-sm">{data.expectativa ?? "Nenhuma pendência registrada."}</p>
+        ) : (
+          <Textarea
+            value={data.expectativa ?? ""}
+            onChange={(e) => setData({ expectativa: e.target.value })}
+            placeholder="Ex.: Cliente quer revisar o fluxo de pacientes recorrentes. Aguarda envio das perguntas de qualificação."
+            rows={3}
+          />
+        )}
       </Card>
 
-      <Card className="p-6 border-cloudia/40 bg-cloudia/5">
-        <Clock className="h-5 w-5 text-cloudia mb-2" />
-        <h3 className="text-base font-medium mb-3">O que vem depois</h3>
-        <ul className="space-y-2 text-sm">
-          <li>· Sua configuração será entregue em até 7 dias úteis</li>
-          <li>· Você receberá um link de teste por WhatsApp</li>
-          <li>· Treinamento agendado para a 3ª semana</li>
-        </ul>
-      </Card>
+      {/* Resumo interno — só aparece no modo edição (cliente não vê) */}
+      {!modoApresentacao && (
+        <Card className="p-5 border-border bg-muted/30">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-3">
+            Resumo interno da reunião
+          </h3>
+          <div className="space-y-2 text-sm">
+            <Row label="Cliente" valor={cliente.nome} />
+            <Row label="Gerente de contas" valor={cliente.gerente ?? "—"} />
+            <Row label="Validações contratuais" valor={`${confirmados} de 5 confirmadas`} />
+            <Row label="Respostas de mapeamento" valor={`${respostas} de 10 preenchidas`} />
+            <Row label="Desafio principal capturado" valor={data.desafio_principal ? "Sim" : "Não"} />
+            <Row label="Variação demo apresentada" valor={data.variacao_demo ?? "—"} />
+            <Row label="Pendências registradas" valor={data.expectativa ? "Sim" : "Não"} />
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
