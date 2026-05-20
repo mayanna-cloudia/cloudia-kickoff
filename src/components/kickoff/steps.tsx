@@ -4,18 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Check,
   Phone,
-  Mail,
   Users,
-  Calendar,
   Bot,
   MessageCircle,
   PhoneCall,
   CheckCircle2,
   AlertCircle,
   Clock,
+  Info,
+  Pencil,
+  X,
 } from "lucide-react";
 
 type Cliente = {
@@ -27,15 +29,16 @@ type Cliente = {
   plano: string | null;
   mensalidade: number | null;
   num_usuarios: number | null;
-  vencimento_dia: number | null;
-  forma_pagamento: string | null;
+  creditos: number | null;
+  integracao: string | null;
+  expectativas: string | null;
   medico_contato: string | null;
 };
 
 type KickoffData = {
   participantes_cliente: any;
   validacoes_contratuais: any;
-  ferias_programadas: string | null;
+  responsavel_implementacao: string | null;
   desafio_principal: string | null;
   expectativa: string | null;
   mapeamento: any;
@@ -58,12 +61,12 @@ export function Passo1BoasVindas({ cliente, modoApresentacao }: StepProps) {
       <h1 className={modoApresentacao ? "text-5xl font-semibold tracking-tight" : "text-3xl font-semibold"}>
         Bem-vindos à <span className="text-cloudia">Cloudia</span>
       </h1>
-      <p className="mt-3 text-lg text-muted-foreground">
-        {cliente.nome}
-      </p>
+      <p className="mt-3 text-lg text-muted-foreground">{cliente.nome}</p>
 
       <Card className="mt-10 p-6 border-border text-left">
-        <p className="text-sm text-muted-foreground mb-4">Sou seu ponto de contato principal durante toda a implantação.</p>
+        <p className="text-sm text-muted-foreground mb-4">
+          Sou seu ponto de contato principal durante toda a implantação.
+        </p>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Gerente de contas</div>
@@ -84,9 +87,7 @@ export function Passo2QuemEhQuem({ cliente, data, setData, modoApresentacao }: S
   return (
     <div className="max-w-4xl mx-auto py-4">
       <h2 className="text-2xl font-semibold mb-2">Quem é quem na jornada</h2>
-      <p className="text-sm text-muted-foreground mb-8">
-        Apresentação dos contatos durante toda a implantação.
-      </p>
+      <p className="text-sm text-muted-foreground mb-8">Apresentação dos contatos durante toda a implantação.</p>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
         <Card className="p-5 border-border">
@@ -124,7 +125,7 @@ export function Passo2QuemEhQuem({ cliente, data, setData, modoApresentacao }: S
   );
 }
 
-// ---------- PASSO 3: Combinados da reunião ----------
+// ---------- PASSO 3: Combinados (texto ajustado: 45min) ----------
 export function Passo3Combinados() {
   const topicos = [
     "Validação do que foi contratado",
@@ -137,7 +138,7 @@ export function Passo3Combinados() {
   return (
     <div className="max-w-3xl mx-auto py-4">
       <h2 className="text-2xl font-semibold mb-2">Como vai ser nossa reunião</h2>
-      <p className="text-sm text-muted-foreground mb-8">Duração de 45min a 1h.</p>
+      <p className="text-sm text-muted-foreground mb-8">Duração: 45 minutos.</p>
 
       <Card className="p-6 border-border">
         <ul className="space-y-3">
@@ -155,45 +156,74 @@ export function Passo3Combinados() {
   );
 }
 
-// ---------- PASSO 4: Validação contratual ----------
+// ---------- PASSO 4: Validação contratual (5 cards editáveis: Plano, Mensalidade, Usuários, Créditos, Integração) ----------
 export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresentacao }: StepProps) {
+  const validacoes = data.validacoes_contratuais ?? {};
+
   const campos = [
-    { key: "plano", label: "Plano", valor: cliente.plano ?? "—" },
+    {
+      key: "plano",
+      label: "Plano",
+      valor: validacoes.plano?.valor ?? cliente.plano ?? "",
+      placeholder: "Ex.: Premium 1200",
+    },
     {
       key: "mensalidade",
       label: "Mensalidade",
-      valor: cliente.mensalidade ? `R$ ${cliente.mensalidade.toFixed(2)}` : "—",
+      valor: validacoes.mensalidade?.valor ?? (cliente.mensalidade ? `R$ ${cliente.mensalidade.toFixed(2)}` : ""),
+      placeholder: "R$ 0,00",
       sublabel: "Recorrência independente da usabilidade",
     },
-    { key: "num_usuarios", label: "Usuários", valor: cliente.num_usuarios?.toString() ?? "—" },
     {
-      key: "vencimento_dia",
-      label: "Vencimento",
-      valor: cliente.vencimento_dia ? `Dia ${cliente.vencimento_dia}` : "—",
+      key: "num_usuarios",
+      label: "Usuários",
+      valor: validacoes.num_usuarios?.valor ?? (cliente.num_usuarios?.toString() ?? ""),
+      placeholder: "Quantos",
     },
-    { key: "forma_pagamento", label: "Pagamento", valor: cliente.forma_pagamento ?? "—" },
+    {
+      key: "creditos",
+      label: "Créditos",
+      valor: validacoes.creditos?.valor ?? (cliente.creditos?.toString() ?? ""),
+      placeholder: "Quantos",
+    },
+    {
+      key: "integracao",
+      label: "Integração",
+      valor: validacoes.integracao?.valor ?? cliente.integracao ?? "",
+      placeholder: "Ex.: Clinicorp",
+    },
   ];
 
-  const validacoes = data.validacoes_contratuais ?? {};
-
-  const confirmar = (campo: string) => {
+  const confirmar = (campo: string, valorAtual: string) => {
     setData({
       validacoes_contratuais: {
         ...validacoes,
         [campo]: {
           confirmado: true,
+          valor: valorAtual,
           confirmado_em: new Date().toISOString(),
         },
       },
     });
   };
 
+  const atualizarValor = (campo: string, novoValor: string) => {
+    setData({
+      validacoes_contratuais: {
+        ...validacoes,
+        [campo]: {
+          ...(validacoes[campo] ?? {}),
+          valor: novoValor,
+          confirmado: false, // edição limpa a confirmação anterior
+        },
+      },
+    });
+  };
+
   return (
-    <div className="max-w-5xl mx-auto py-4">
+    <div className="max-w-6xl mx-auto py-4">
       <h2 className="text-2xl font-semibold mb-2">Validação contratual</h2>
-      <p className="text-sm text-muted-foreground mb-8">
-        Confirme com o cliente cada item do contrato.
-      </p>
+      <p className="text-sm text-muted-foreground mb-8">Confirme com o cliente cada item do contrato.</p>
 
       <div className="grid grid-cols-5 gap-3 mb-6">
         {campos.map((c) => {
@@ -204,15 +234,24 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
               className={`p-4 border ${confirmado ? "border-emerald-500/40 bg-emerald-50/40" : "border-border"}`}
             >
               <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{c.label}</div>
-              <div className="text-base font-medium">{c.valor}</div>
+              {modoApresentacao ? (
+                <div className="text-base font-medium min-h-[24px]">{c.valor || "—"}</div>
+              ) : (
+                <Input
+                  value={c.valor}
+                  onChange={(e) => atualizarValor(c.key, e.target.value)}
+                  placeholder={c.placeholder}
+                  className="text-base font-medium border-none p-0 h-auto focus-visible:ring-0 shadow-none bg-transparent"
+                />
+              )}
               {c.sublabel && <div className="text-[10px] text-muted-foreground mt-1">{c.sublabel}</div>}
               {!modoApresentacao && (
                 <Button
                   type="button"
                   size="sm"
                   variant={confirmado ? "ghost" : "outline"}
-                  onClick={() => confirmar(c.key)}
-                  disabled={confirmado}
+                  onClick={() => confirmar(c.key, c.valor)}
+                  disabled={confirmado || !c.valor}
                   className="mt-3 w-full text-xs"
                 >
                   {confirmado ? (
@@ -248,7 +287,7 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
   );
 }
 
-// ---------- PASSO 5: Cronograma ----------
+// ---------- PASSO 5: Cronograma (diretrizes reescritas, sem "Pontualidade", pergunta nova) ----------
 export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps) {
   const etapas = [
     { icon: PhoneCall, titulo: "Kickoff", prazo: "Hoje", atual: true },
@@ -259,10 +298,21 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
   ];
 
   const diretrizes = [
-    { titulo: "Participação", texto: "Implantação dura ~30 dias. Vocês devem estar usando 100% da plataforma." },
-    { titulo: "Responsável", texto: "Nós configuramos. Indicamos uma pessoa-chave do seu lado." },
-    { titulo: "Comunicação", texto: "Todo contato será via WhatsApp." },
-    { titulo: "Pontualidade", texto: "45min-1h com 10min de tolerância." },
+    {
+      titulo: "Participação",
+      texto:
+        "A implantação dura cerca de 30 dias. Nesse período é essencial que vocês usem 100% a plataforma, testem o robô, deem feedbacks rápidos e participem dos treinamentos. Quanto mais cedo o uso, mais cedo o resultado.",
+    },
+    {
+      titulo: "Responsável",
+      texto:
+        "Indique uma pessoa-chave da clínica que será responsável por: realizar os testes do robô, passar feedbacks de alterações necessárias, validar configurações e disseminar o conteúdo dos treinamentos internamente. Essa pessoa será nosso ponto de contato no dia a dia.",
+    },
+    {
+      titulo: "Comunicação",
+      texto:
+        "Todo nosso contato será via WhatsApp, no mesmo número que vocês acabaram de receber. Eu (gerente) sou seu ponto principal. Para dúvidas técnicas e alterações, falamos diretamente. Após a implantação, o suporte continua no mesmo canal.",
+    },
   ];
 
   return (
@@ -278,7 +328,11 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
               key={i}
               className={`p-4 border ${e.atual ? "border-cloudia bg-cloudia/5" : "border-border"}`}
             >
-              <div className={`inline-flex h-9 w-9 items-center justify-center rounded-md ${e.atual ? "bg-cloudia text-white" : "bg-muted text-muted-foreground"} mb-3`}>
+              <div
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-md ${
+                  e.atual ? "bg-cloudia text-white" : "bg-muted text-muted-foreground"
+                } mb-3`}
+              >
                 <Icon className="h-4 w-4" />
               </div>
               <div className="text-sm font-medium">{e.titulo}</div>
@@ -289,10 +343,10 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
       </div>
 
       <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-3">Diretrizes</h3>
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-6">
         {diretrizes.map((d, i) => (
           <Card key={i} className="p-4 border-border">
-            <div className="text-sm font-medium mb-1">{d.titulo}</div>
+            <div className="text-sm font-medium mb-2">{d.titulo}</div>
             <div className="text-xs text-muted-foreground leading-relaxed">{d.texto}</div>
           </Card>
         ))}
@@ -300,12 +354,14 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
 
       {!modoApresentacao && (
         <Card className="p-5 border-border">
-          <Label>Tem férias programadas nos próximos dois meses?</Label>
+          <Label>Quem vai ser o responsável pela implementação?</Label>
+          <p className="text-xs text-muted-foreground mt-1 mb-2">
+            Responsável por realizar os testes, passar feedbacks das alterações que precisam ser ajustadas, etc.
+          </p>
           <Input
-            value={data.ferias_programadas ?? ""}
-            onChange={(e) => setData({ ferias_programadas: e.target.value })}
-            placeholder="Ex.: 15 a 25 de junho"
-            className="mt-2"
+            value={data.responsavel_implementacao ?? ""}
+            onChange={(e) => setData({ responsavel_implementacao: e.target.value })}
+            placeholder="Nome e função da pessoa-chave da clínica"
           />
         </Card>
       )}
@@ -313,8 +369,8 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
   );
 }
 
-// ---------- PASSO 6: Demonstração ao vivo ----------
-const DEMOS = {
+// ---------- PASSO 6: Demonstração (mensagens editáveis) ----------
+const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: { from: string; texto: string; hora: string }[] }> = {
   chatgpt: {
     label: "100% ChatGPT",
     desc: "O robô conduz toda a conversa via IA. Sua equipe entra só se o paciente pedir atendente humano.",
@@ -350,8 +406,34 @@ const DEMOS = {
 };
 
 export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps) {
-  const variacaoAtual = (data.variacao_demo ?? "chatgpt") as keyof typeof DEMOS;
-  const demo = DEMOS[variacaoAtual];
+  const variacaoAtual = (data.variacao_demo ?? "chatgpt") as string;
+  const mensagensCustomizadas = data.mensagens_demo?.[variacaoAtual];
+  const demoInicial = DEMOS_INICIAIS[variacaoAtual];
+  const mensagens = mensagensCustomizadas ?? demoInicial.mensagens;
+
+  const [editandoIdx, setEditandoIdx] = useState<number | null>(null);
+  const [textoEdicao, setTextoEdicao] = useState("");
+
+  const salvarEdicao = (idx: number) => {
+    const novas = [...mensagens];
+    novas[idx] = { ...novas[idx], texto: textoEdicao };
+    setData({
+      mensagens_demo: { ...(data.mensagens_demo ?? {}), [variacaoAtual]: novas },
+    });
+    setEditandoIdx(null);
+    setTextoEdicao("");
+  };
+
+  const resetarVariacao = () => {
+    const novas = { ...(data.mensagens_demo ?? {}) };
+    delete novas[variacaoAtual];
+    setData({ mensagens_demo: novas });
+  };
+
+  const trocarVariacao = (k: string) => {
+    setData({ variacao_demo: k });
+    setEditandoIdx(null);
+  };
 
   return (
     <div className="max-w-6xl mx-auto py-4">
@@ -360,20 +442,26 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
         Sua paciente no WhatsApp à esquerda, sua equipe na Central de Mensagens à direita.
       </p>
 
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {(Object.keys(DEMOS) as Array<keyof typeof DEMOS>).map((k) => (
+      <div className="flex gap-2 mb-6 flex-wrap items-center">
+        {Object.keys(DEMOS_INICIAIS).map((k) => (
           <button
             key={k}
-            onClick={() => setData({ variacao_demo: k })}
+            onClick={() => trocarVariacao(k)}
             className={`px-4 py-2 rounded-md text-sm transition-colors ${
               variacaoAtual === k
                 ? "bg-primary text-primary-foreground font-medium"
                 : "bg-card border border-border text-muted-foreground hover:text-foreground"
             }`}
           >
-            {DEMOS[k].label}
+            {DEMOS_INICIAIS[k].label}
           </button>
         ))}
+
+        {!modoApresentacao && mensagensCustomizadas && (
+          <Button type="button" size="sm" variant="ghost" onClick={resetarVariacao} className="ml-auto text-xs">
+            Restaurar mensagens padrão
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-[260px_1fr] gap-4 items-start">
@@ -393,14 +481,12 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
                   <div className="text-[9px] opacity-85">online</div>
                 </div>
               </div>
-              <div className="flex-1 p-2 flex flex-col gap-1.5 overflow-hidden">
-                {demo.mensagens.map((m, i) => (
+              <div className="flex-1 p-2 flex flex-col gap-1.5 overflow-auto">
+                {mensagens.map((m, i) => (
                   <div
                     key={i}
                     className={`rounded-md px-2 py-1.5 max-w-[80%] shadow-sm ${
-                      m.from === "paciente"
-                        ? "bg-[#d9fdd3] self-end"
-                        : "bg-white self-start"
+                      m.from === "paciente" ? "bg-[#d9fdd3] self-end" : "bg-white self-start"
                     }`}
                   >
                     <p className="text-[11px] text-[#111b21] leading-snug">{m.texto}</p>
@@ -414,15 +500,13 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
           </div>
         </div>
 
-        {/* Coluna direita: Central de Mensagens (tema escuro fiel) */}
+        {/* Coluna direita: Central de Mensagens */}
         <div>
           <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1.5">
             <MessageCircle className="h-3 w-3" /> O que sua equipe vê na Central de Mensagens
           </div>
           <div className="bg-[#1e2330] rounded-lg overflow-hidden grid grid-cols-[1fr_180px] min-h-[480px]">
-            {/* Chat principal */}
             <div className="flex flex-col border-r border-[#2a3142]">
-              {/* Header */}
               <div className="bg-[#1e2330] px-4 py-2.5 flex items-center gap-2.5 border-b border-[#2a3142]">
                 <div className="w-7 h-7 bg-pink-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
                   DE
@@ -433,9 +517,8 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
                 </div>
               </div>
 
-              {/* Mensagens */}
               <div
-                className="flex-1 p-3 flex flex-col gap-2.5"
+                className="flex-1 p-3 flex flex-col gap-2.5 overflow-auto"
                 style={{
                   background: "#14171f",
                   backgroundImage: "radial-gradient(circle, #1a1f2e 1px, transparent 1px)",
@@ -446,33 +529,81 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
                   <span className="bg-[#2a3142] text-gray-400 text-[10px] px-2.5 py-0.5 rounded-full">Hoje</span>
                 </div>
 
-                {demo.mensagens.map((m, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-md px-2.5 py-1.5 max-w-[85%] ${
-                      m.from === "robo" ? "bg-blue-600 self-end" : "bg-[#2a3142] self-start"
-                    }`}
-                  >
-                    {m.from === "robo" && (
-                      <p className="text-[10px] text-blue-200 font-medium flex items-center gap-1 mb-0.5">
-                        <Bot className="h-3 w-3" /> Cloudia
-                      </p>
-                    )}
-                    <p className={`text-[11px] leading-snug ${m.from === "robo" ? "text-white" : "text-gray-200"}`}>
-                      {m.texto}
-                    </p>
-                    <p
-                      className={`text-[9px] text-right mt-0.5 ${
-                        m.from === "robo" ? "text-blue-200" : "text-gray-500"
-                      }`}
-                    >
-                      {m.hora} {m.from === "robo" && "✓✓"}
-                    </p>
-                  </div>
-                ))}
+                {mensagens.map((m, i) => {
+                  const isEditando = editandoIdx === i;
+                  return (
+                    <div key={i} className={`flex flex-col ${m.from === "robo" ? "items-end" : "items-start"} group`}>
+                      <div
+                        className={`rounded-md px-2.5 py-1.5 max-w-[85%] ${
+                          m.from === "robo" ? "bg-blue-600" : "bg-[#2a3142]"
+                        } ${!modoApresentacao ? "relative" : ""}`}
+                      >
+                        {m.from === "robo" && (
+                          <p className="text-[10px] text-blue-200 font-medium flex items-center gap-1 mb-0.5">
+                            <Bot className="h-3 w-3" /> Cloudia
+                          </p>
+                        )}
+
+                        {isEditando ? (
+                          <div className="flex flex-col gap-1.5">
+                            <Textarea
+                              value={textoEdicao}
+                              onChange={(e) => setTextoEdicao(e.target.value)}
+                              className="text-[11px] bg-white/10 text-white border-white/20 min-h-[60px]"
+                              autoFocus
+                            />
+                            <div className="flex gap-1.5 justify-end">
+                              <button
+                                onClick={() => {
+                                  setEditandoIdx(null);
+                                  setTextoEdicao("");
+                                }}
+                                className="text-[10px] text-white/70 hover:text-white px-2 py-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={() => salvarEdicao(i)}
+                                className="text-[10px] bg-white/20 hover:bg-white/30 text-white px-2 py-0.5 rounded"
+                              >
+                                <Check className="h-3 w-3" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className={`text-[11px] leading-snug ${m.from === "robo" ? "text-white" : "text-gray-200"}`}>
+                            {m.texto}
+                          </p>
+                        )}
+
+                        {!isEditando && (
+                          <p
+                            className={`text-[9px] text-right mt-0.5 ${
+                              m.from === "robo" ? "text-blue-200" : "text-gray-500"
+                            }`}
+                          >
+                            {m.hora} {m.from === "robo" && "✓✓"}
+                          </p>
+                        )}
+
+                        {!modoApresentacao && !isEditando && (
+                          <button
+                            onClick={() => {
+                              setEditandoIdx(i);
+                              setTextoEdicao(m.texto);
+                            }}
+                            className="absolute -top-1.5 -right-1.5 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Editar mensagem"
+                          >
+                            <Pencil className="h-2.5 w-2.5 text-gray-700" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Input */}
               <div className="bg-[#1e2330] px-3 py-2 border-t border-[#2a3142]">
                 <div className="bg-[#14171f] rounded px-2.5 py-1.5 text-[11px] text-gray-600">
                   Digite uma mensagem...
@@ -480,7 +611,6 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
               </div>
             </div>
 
-            {/* Painel de contato */}
             <div className="bg-[#14171f] p-3 flex flex-col gap-2.5">
               <p className="text-[10px] text-gray-500 uppercase tracking-wide">Dados do contato</p>
               <div className="flex flex-col items-center gap-1.5 py-2">
@@ -506,15 +636,21 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
           </div>
 
           <Card className="mt-3 p-3 border-primary/30 bg-primary/5">
-            <p className="text-xs text-foreground leading-relaxed">{demo.desc}</p>
+            <p className="text-xs text-foreground leading-relaxed">{demoInicial.desc}</p>
           </Card>
+
+          {!modoApresentacao && (
+            <p className="text-[11px] text-muted-foreground mt-2">
+              💡 Passe o mouse em cima de qualquer mensagem para editar. As alterações ficam salvas para essa kickoff.
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// ---------- PASSO 7: Mapeamento ----------
+// ---------- PASSO 7: Mapeamento (nota interna agora é tooltip discreto) ----------
 const PERGUNTAS_MAPEAMENTO = [
   { key: "matriz_filiais", label: "Matriz ou filiais?" },
   { key: "precos_unidade", label: "Os preços mudam por unidade?" },
@@ -536,20 +672,34 @@ export function Passo7Mapeamento({ data, setData, modoApresentacao }: StepProps)
       <p className="text-sm text-muted-foreground mb-8">Hora de conhecer melhor o seu dia a dia.</p>
 
       <Card className="p-6 border-cloudia/40 bg-cloudia/5 mb-6">
-        <Label className="text-base font-medium">
-          Quais os principais desafios enfrentados hoje e qual sua expectativa com a contratação da Cloudia?
-        </Label>
-        <p className="text-xs text-muted-foreground mt-1 mb-3">
-          {!modoApresentacao && "(Esta resposta é referência para conversas de retenção futuras — anote em detalhes.)"}
-        </p>
+        <div className="flex items-start gap-2">
+          <Label className="text-base font-medium flex-1">
+            Quais os principais desafios enfrentados hoje e qual sua expectativa com a contratação da Cloudia?
+          </Label>
+          {!modoApresentacao && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-muted-foreground hover:text-foreground">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs text-xs">
+                  Esta resposta é referência para conversas de retenção futuras — anote em detalhes.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         {modoApresentacao ? (
-          <p className="text-sm">{data.desafio_principal ?? "—"}</p>
+          <p className="text-sm mt-3">{data.desafio_principal ?? "—"}</p>
         ) : (
           <Textarea
             value={data.desafio_principal ?? ""}
             onChange={(e) => setData({ desafio_principal: e.target.value })}
             rows={4}
             placeholder="Anote em detalhes a dor do cliente e o que ele espera..."
+            className="mt-3"
           />
         )}
       </Card>
@@ -566,9 +716,7 @@ export function Passo7Mapeamento({ data, setData, modoApresentacao }: StepProps)
             ) : (
               <Input
                 value={mapeamento[p.key] ?? ""}
-                onChange={(e) =>
-                  setData({ mapeamento: { ...mapeamento, [p.key]: e.target.value } })
-                }
+                onChange={(e) => setData({ mapeamento: { ...mapeamento, [p.key]: e.target.value } })}
                 className="mt-2"
                 placeholder="Resposta do cliente"
               />
@@ -580,7 +728,7 @@ export function Passo7Mapeamento({ data, setData, modoApresentacao }: StepProps)
   );
 }
 
-// ---------- PASSO 8: Próximos passos ----------
+// ---------- PASSO 8: Próximos passos (mantido por enquanto, vamos repensar depois) ----------
 export function Passo8ProximosPassos({ cliente, data }: StepProps) {
   const validacoes = data.validacoes_contratuais ?? {};
   const confirmados = Object.values(validacoes).filter((v: any) => v?.confirmado).length;
@@ -590,9 +738,7 @@ export function Passo8ProximosPassos({ cliente, data }: StepProps) {
   return (
     <div className="max-w-3xl mx-auto py-4">
       <h2 className="text-2xl font-semibold mb-2">Próximos passos</h2>
-      <p className="text-sm text-muted-foreground mb-8">
-        Vamos iniciar suas configurações!
-      </p>
+      <p className="text-sm text-muted-foreground mb-8">Vamos iniciar suas configurações!</p>
 
       <Card className="p-6 border-border mb-6">
         <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-4">

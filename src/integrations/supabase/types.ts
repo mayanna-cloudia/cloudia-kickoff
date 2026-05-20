@@ -15,12 +15,15 @@ export type Database = {
       clientes: {
         Row: {
           configurador: string | null
+          creditos: number | null
           criado_em: string
           data_inicio: string | null
           especialidade: string | null
+          expectativas: string | null
           forma_pagamento: string | null
           gerente: string | null
           id: string
+          integracao: string | null
           medico_contato: string | null
           mensalidade: number | null
           nome: string
@@ -33,12 +36,15 @@ export type Database = {
         }
         Insert: {
           configurador?: string | null
+          creditos?: number | null
           criado_em?: string
           data_inicio?: string | null
           especialidade?: string | null
+          expectativas?: string | null
           forma_pagamento?: string | null
           gerente?: string | null
           id?: string
+          integracao?: string | null
           medico_contato?: string | null
           mensalidade?: number | null
           nome: string
@@ -51,12 +57,15 @@ export type Database = {
         }
         Update: {
           configurador?: string | null
+          creditos?: number | null
           criado_em?: string
           data_inicio?: string | null
           especialidade?: string | null
+          expectativas?: string | null
           forma_pagamento?: string | null
           gerente?: string | null
           id?: string
+          integracao?: string | null
           medico_contato?: string | null
           mensalidade?: number | null
           nome?: string

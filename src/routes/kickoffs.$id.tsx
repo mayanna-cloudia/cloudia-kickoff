@@ -51,7 +51,7 @@ function KickoffWizard() {
   const [data, setDataState] = useState<any>({
     participantes_cliente: [],
     validacoes_contratuais: {},
-    ferias_programadas: null,
+    responsavel_implementacao: null,
     desafio_principal: null,
     expectativa: null,
     mapeamento: {},
@@ -60,7 +60,7 @@ function KickoffWizard() {
     notas_internas: null,
   });
 
-  // Atalho P para alternar modo
+  // Atalho P
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "p" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
@@ -71,7 +71,6 @@ function KickoffWizard() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Carregar dados
   useEffect(() => {
     (async () => {
       const { data: k, error } = await supabase
@@ -87,10 +86,11 @@ function KickoffWizard() {
       setKickoff(k);
       setCliente((k as any).clientes);
       setPasso((k as any).passo_atual ?? 1);
+      // Lê responsavel_implementacao do campo ferias_programadas (reusamos a coluna)
       setDataState({
         participantes_cliente: (k as any).participantes_cliente ?? [],
         validacoes_contratuais: (k as any).validacoes_contratuais ?? {},
-        ferias_programadas: (k as any).ferias_programadas,
+        responsavel_implementacao: (k as any).ferias_programadas, // reuso da coluna
         desafio_principal: (k as any).desafio_principal,
         expectativa: (k as any).expectativa,
         mapeamento: (k as any).mapeamento ?? {},
@@ -102,13 +102,20 @@ function KickoffWizard() {
     })();
   }, [id, navigate]);
 
-  // Auto-save
   const save = useCallback(
     async (v: any) => {
       await supabase
         .from("kickoffs")
         .update({
-          ...v,
+          participantes_cliente: v.participantes_cliente,
+          validacoes_contratuais: v.validacoes_contratuais,
+          ferias_programadas: v.responsavel_implementacao, // salva no mesmo campo, sem alterar banco
+          desafio_principal: v.desafio_principal,
+          expectativa: v.expectativa,
+          mapeamento: v.mapeamento,
+          variacao_demo: v.variacao_demo,
+          mensagens_demo: v.mensagens_demo,
+          notas_internas: v.notas_internas,
           passo_atual: passo,
         })
         .eq("id", id);
@@ -117,7 +124,6 @@ function KickoffWizard() {
   );
   const status = useAutoSave(data, save);
 
-  // Patch helper
   const setData = (patch: any) => setDataState((d: any) => ({ ...d, ...patch }));
 
   const finalizar = async () => {
@@ -138,7 +144,6 @@ function KickoffWizard() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header fixo */}
       <header className="border-b border-border bg-card sticky top-0 z-10">
         <div className="px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
@@ -148,13 +153,13 @@ function KickoffWizard() {
             <div className="min-w-0">
               <div className="text-sm font-medium truncate">{cliente?.nome}</div>
               <div className="text-xs text-muted-foreground">
-                {cliente?.especialidade ?? "Kickoff"} · {kickoff?.data_reuniao && new Date(kickoff.data_reuniao).toLocaleDateString("pt-BR")}
+                {cliente?.especialidade ?? "Kickoff"} ·{" "}
+                {kickoff?.data_reuniao && new Date(kickoff.data_reuniao).toLocaleDateString("pt-BR")}
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Status save */}
             <div className="text-xs text-muted-foreground min-w-[60px] text-right">
               {status === "saving" && "Salvando…"}
               {status === "saved" && (
@@ -165,7 +170,6 @@ function KickoffWizard() {
               {status === "error" && <span className="text-destructive">Erro</span>}
             </div>
 
-            {/* Toggle modo */}
             <Button
               type="button"
               size="sm"
@@ -185,7 +189,6 @@ function KickoffWizard() {
           </div>
         </div>
 
-        {/* Wizard breadcrumb */}
         <div className="px-6 pb-2 flex gap-1.5 overflow-x-auto">
           {PASSOS.map((p) => (
             <button
@@ -204,7 +207,6 @@ function KickoffWizard() {
         </div>
       </header>
 
-      {/* Conteúdo do passo */}
       <main className="flex-1 px-6 py-6 overflow-y-auto">
         <PassoComponent
           cliente={cliente}
@@ -214,7 +216,6 @@ function KickoffWizard() {
         />
       </main>
 
-      {/* Footer com navegação */}
       <footer className="border-t border-border bg-card px-6 py-3 flex items-center justify-between">
         <Button
           type="button"
@@ -226,18 +227,15 @@ function KickoffWizard() {
           <ArrowLeft className="h-3.5 w-3.5 mr-1.5" /> Anterior
         </Button>
         <div className="text-xs text-muted-foreground">
-          Passo {passo} de {PASSOS.length} · <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px]">P</kbd> alterna modo
+          Passo {passo} de {PASSOS.length} ·{" "}
+          <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px]">P</kbd> alterna modo
         </div>
         {passo === PASSOS.length ? (
           <Button type="button" size="sm" onClick={finalizar}>
             <Save className="h-3.5 w-3.5 mr-1.5" /> Finalizar kickoff
           </Button>
         ) : (
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => setPasso((p) => Math.min(PASSOS.length, p + 1))}
-          >
+          <Button type="button" size="sm" onClick={() => setPasso((p) => Math.min(PASSOS.length, p + 1))}>
             Próximo <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
           </Button>
         )}
