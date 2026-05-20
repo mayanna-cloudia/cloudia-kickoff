@@ -7,11 +7,57 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
+      alteracoes: {
+        Row: {
+          cliente_id: string
+          configurador: string
+          criado_em: string
+          descricao: string | null
+          fase: string
+          id: string
+          origem: string
+          tamanho: string
+          tipo: string
+        }
+        Insert: {
+          cliente_id: string
+          configurador: string
+          criado_em?: string
+          descricao?: string | null
+          fase: string
+          id?: string
+          origem: string
+          tamanho: string
+          tipo: string
+        }
+        Update: {
+          cliente_id?: string
+          configurador?: string
+          criado_em?: string
+          descricao?: string | null
+          fase?: string
+          id?: string
+          origem?: string
+          tamanho?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alteracoes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           configurador: string | null
@@ -145,6 +191,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      settings: {
+        Row: {
+          alteracoes_inclusas: number | null
+          atualizado_em: string
+          id: string
+        }
+        Insert: {
+          alteracoes_inclusas?: number | null
+          atualizado_em?: string
+          id?: string
+        }
+        Update: {
+          alteracoes_inclusas?: number | null
+          atualizado_em?: string
+          id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

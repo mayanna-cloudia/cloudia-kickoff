@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — Cloudia Hub" }] }),
@@ -55,7 +56,12 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-60 dark:opacity-40" style={{
+        background:
+          "radial-gradient(circle at 20% 10%, color-mix(in oklab, var(--primary) 25%, transparent), transparent 50%), radial-gradient(circle at 80% 90%, color-mix(in oklab, var(--cloudia) 25%, transparent), transparent 50%)",
+      }} />
+      <div className="absolute right-4 top-4"><ThemeToggle /></div>
       <Toaster />
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">

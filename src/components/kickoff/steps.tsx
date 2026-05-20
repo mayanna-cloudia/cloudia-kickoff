@@ -807,7 +807,7 @@ export function Passo7DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
                 </div>
               </div>
               <div className="flex-1 p-2 flex flex-col gap-1.5 overflow-auto">
-                {mensagens.map((m, i) => (
+                {mensagens.map((m: any, i: number) => (
                   <div
                     key={i}
                     className={`rounded-md px-2 py-1.5 max-w-[80%] shadow-sm ${
@@ -854,7 +854,7 @@ export function Passo7DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
                   <span className="bg-[#2a3142] text-gray-400 text-[10px] px-2.5 py-0.5 rounded-full">Hoje</span>
                 </div>
 
-                {mensagens.map((m, i) => {
+                {mensagens.map((m: any, i: number) => {
                   const isEditando = editandoIdx === i;
                   return (
                     <div key={i} className={`flex flex-col ${m.from === "robo" ? "items-end" : "items-start"} group`}>
