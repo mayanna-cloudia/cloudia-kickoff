@@ -979,7 +979,7 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
         {!modoApresentacao && (
           <h3 className="text-lg font-semibold mb-3">Fluxo do robô</h3>
         )}
-        <FluxoViewer clienteId={(data as any).cliente_id ?? ""} variacao={variacaoAtual as VariacaoFluxo} />
+        <FluxoViewer clienteId={cliente.id} variacao={variacaoAtual as VariacaoFluxo} />
       </section>
     </div>
   );
