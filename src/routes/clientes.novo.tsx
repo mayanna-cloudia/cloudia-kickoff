@@ -6,12 +6,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/clientes/novo")({
-  head: () => ({ meta: [{ title: "Novo cliente — Cloudia Hub" }] }),
+  head: () => ({ meta: [{ title: "Novo cliente — Cloudia" }] }),
   component: () => (
     <AuthGate>
       <Toaster />
@@ -23,13 +24,24 @@ export const Route = createFileRoute("/clientes/novo")({
 function NovoCliente() {
   const navigate = useNavigate();
   const [f, setF] = useState({
-    nome: "", medico_contato: "", especialidade: "", data_inicio: "",
-    vendedor: "", gerente: "", configurador: "", plano: "",
-    mensalidade: "", num_usuarios: "", vencimento_dia: "", forma_pagamento: "",
+    nome: "",
+    medico_contato: "",
+    especialidade: "", // exibido como "Categoria" na UI
+    data_inicio: "",
+    vendedor: "",
+    gerente: "",
+    configurador: "",
+    plano: "",
+    mensalidade: "",
+    num_usuarios: "",
+    creditos: "",
+    integracao: "",
+    expectativas: "",
   });
   const [saving, setSaving] = useState(false);
 
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setF({ ...f, [k]: e.target.value });
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +58,9 @@ function NovoCliente() {
       plano: f.plano || null,
       mensalidade: f.mensalidade ? Number(f.mensalidade) : null,
       num_usuarios: f.num_usuarios ? Number(f.num_usuarios) : null,
-      vencimento_dia: f.vencimento_dia ? Number(f.vencimento_dia) : null,
-      forma_pagamento: f.forma_pagamento || null,
+      creditos: f.creditos ? Number(f.creditos) : null,
+      integracao: f.integracao || null,
+      expectativas: f.expectativas || null,
     });
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -61,13 +74,15 @@ function NovoCliente() {
         <ArrowLeft className="h-4 w-4" /> Voltar
       </Link>
       <h1 className="text-2xl font-semibold tracking-tight">Novo cliente</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Dados básicos. Detalhes contratuais são validados no kickoff (Fase 2).</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Dados básicos da clínica. Detalhes contratuais serão validados durante o kickoff.
+      </p>
 
       <Card className="mt-6 p-6 border-border">
         <form onSubmit={submit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="Nome da clínica" required value={f.nome} onChange={set("nome")} />
           <Field label="Médico de contato" value={f.medico_contato} onChange={set("medico_contato")} />
-          <Field label="Especialidade" value={f.especialidade} onChange={set("especialidade")} />
+          <Field label="Categoria" placeholder="Ex.: Odontologia, Médico" value={f.especialidade} onChange={set("especialidade")} />
           <Field label="Data de início" type="date" value={f.data_inicio} onChange={set("data_inicio")} />
           <Field label="Vendedor" value={f.vendedor} onChange={set("vendedor")} />
           <Field label="Gerente de contas" value={f.gerente} onChange={set("gerente")} />
@@ -75,8 +90,18 @@ function NovoCliente() {
           <Field label="Plano" value={f.plano} onChange={set("plano")} />
           <Field label="Mensalidade (R$)" type="number" value={f.mensalidade} onChange={set("mensalidade")} />
           <Field label="Nº de usuários" type="number" value={f.num_usuarios} onChange={set("num_usuarios")} />
-          <Field label="Dia de vencimento" type="number" value={f.vencimento_dia} onChange={set("vencimento_dia")} />
-          <Field label="Forma de pagamento" value={f.forma_pagamento} onChange={set("forma_pagamento")} />
+          <Field label="Créditos" type="number" value={f.creditos} onChange={set("creditos")} />
+          <Field label="Integração" placeholder="Ex.: Clinicorp, Doctoralia" value={f.integracao} onChange={set("integracao")} />
+
+          <div className="md:col-span-2 space-y-1.5">
+            <Label>Expectativas do cliente</Label>
+            <Textarea
+              value={f.expectativas}
+              onChange={set("expectativas")}
+              placeholder="O que o cliente espera com a Cloudia. Use as anotações do handoff de vendas."
+              rows={3}
+            />
+          </div>
 
           <div className="md:col-span-2 flex justify-end gap-2 pt-2">
             <Link to="/clientes"><Button type="button" variant="ghost">Cancelar</Button></Link>
@@ -90,7 +115,11 @@ function NovoCliente() {
   );
 }
 
-function Field({ label, required, ...rest }: { label: string; required?: boolean } & React.ComponentProps<typeof Input>) {
+function Field({
+  label,
+  required,
+  ...rest
+}: { label: string; required?: boolean } & React.ComponentProps<typeof Input>) {
   return (
     <div className="space-y-1.5">
       <Label>{label} {required && <span className="text-destructive">*</span>}</Label>
