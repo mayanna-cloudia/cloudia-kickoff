@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthGate } from "@/components/auth-gate";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
-import { ArrowLeft, ArrowRight, Eye, Pencil, Save, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, Pencil, Save, Check, Workflow } from "lucide-react";
 import { toast } from "sonner";
 import { useAutoSave } from "@/lib/use-auto-save";
 import {
@@ -179,6 +179,14 @@ function KickoffWizard() {
               )}
               {status === "error" && <span className="text-destructive">Erro</span>}
             </div>
+
+            <Link
+              to="/clientes/$id/fluxos"
+              params={{ id: cliente?.id ?? "" }}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded px-2.5 py-1"
+            >
+              <Workflow className="h-3.5 w-3.5" /> Editar fluxos
+            </Link>
 
             <Button
               type="button"
