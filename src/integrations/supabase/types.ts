@@ -124,6 +124,41 @@ export type Database = {
         }
         Relationships: []
       }
+      fluxos_robo: {
+        Row: {
+          atualizado_em: string
+          cliente_id: string
+          edges: Json
+          id: string
+          nodes: Json
+          variacao: string
+        }
+        Insert: {
+          atualizado_em?: string
+          cliente_id: string
+          edges?: Json
+          id?: string
+          nodes?: Json
+          variacao: string
+        }
+        Update: {
+          atualizado_em?: string
+          cliente_id?: string
+          edges?: Json
+          id?: string
+          nodes?: Json
+          variacao?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fluxos_robo_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kickoffs: {
         Row: {
           cliente_id: string
