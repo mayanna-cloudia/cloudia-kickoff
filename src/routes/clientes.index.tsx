@@ -23,6 +23,7 @@ type Row = {
   especialidade: string | null;
   gerente: string | null;
   configurador: string | null;
+  integracao: string | null;
   status: string;
   kickoffs: { count: number }[];
 };
@@ -35,7 +36,7 @@ function ClientesList() {
     (async () => {
       const { data } = await supabase
         .from("clientes")
-        .select("id,nome,especialidade,gerente,configurador,status,kickoffs(count)")
+        .select("id,nome,especialidade,gerente,configurador,integracao,status,kickoffs(count)")
         .order("nome");
       setRows((data as any) ?? []);
       setLoading(false);
@@ -47,9 +48,7 @@ function ClientesList() {
       <header className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Clientes</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Clínicas cadastradas para implementação.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Empresas cadastradas para implementação.</p>
         </div>
         <Link to="/clientes/novo">
           <Button>
@@ -79,7 +78,8 @@ function ClientesList() {
             <thead className="text-xs uppercase tracking-wide text-muted-foreground">
               <tr className="border-b border-border">
                 <th className="text-left font-medium px-6 py-3">Nome</th>
-                <th className="text-left font-medium px-4 py-3">Especialidade</th>
+                <th className="text-left font-medium px-4 py-3">Categoria</th>
+                <th className="text-left font-medium px-4 py-3">Integração</th>
                 <th className="text-left font-medium px-4 py-3">Gerente</th>
                 <th className="text-left font-medium px-4 py-3">Configurador</th>
                 <th className="text-right font-medium px-6 py-3">Kickoffs</th>
@@ -90,6 +90,7 @@ function ClientesList() {
                 <tr key={c.id} className="border-b border-border/60 last:border-0">
                   <td className="px-6 py-3 font-medium">{c.nome}</td>
                   <td className="px-4 py-3 text-muted-foreground">{c.especialidade ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{c.integracao ?? "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{c.gerente ?? "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{c.configurador ?? "—"}</td>
                   <td className="px-6 py-3 text-right text-muted-foreground">

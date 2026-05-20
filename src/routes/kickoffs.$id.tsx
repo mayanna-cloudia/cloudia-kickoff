@@ -13,8 +13,8 @@ import {
   Passo3Combinados,
   Passo4ValidacaoContratual,
   Passo5Cronograma,
-  Passo6DemoAoVivo,
-  Passo7Mapeamento,
+  Passo6Mapeamento,
+  Passo7DemoAoVivo,
   Passo8ProximosPassos,
 } from "@/components/kickoff/steps";
 
@@ -28,14 +28,15 @@ export const Route = createFileRoute("/kickoffs/$id")({
   ),
 });
 
+// Ordem nova: Mapeamento (6) antes de Demonstração (7)
 const PASSOS = [
   { num: 1, label: "Boas-vindas", Component: Passo1BoasVindas },
   { num: 2, label: "Quem é quem", Component: Passo2QuemEhQuem },
   { num: 3, label: "Combinados", Component: Passo3Combinados },
   { num: 4, label: "Validação contratual", Component: Passo4ValidacaoContratual },
   { num: 5, label: "Cronograma", Component: Passo5Cronograma },
-  { num: 6, label: "Demonstração", Component: Passo6DemoAoVivo },
-  { num: 7, label: "Mapeamento", Component: Passo7Mapeamento },
+  { num: 6, label: "Mapeamento", Component: Passo6Mapeamento },
+  { num: 7, label: "Demonstração", Component: Passo7DemoAoVivo },
   { num: 8, label: "Próximos passos", Component: Passo8ProximosPassos },
 ];
 
@@ -52,6 +53,7 @@ function KickoffWizard() {
     participantes_cliente: [],
     validacoes_contratuais: {},
     responsavel_implementacao: null,
+    operador_atendimento: null,
     desafio_principal: null,
     expectativa: null,
     mapeamento: {},
@@ -60,7 +62,7 @@ function KickoffWizard() {
     notas_internas: null,
   });
 
-  // Atalho P
+  // Atalho P alterna modo
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "p" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
@@ -86,11 +88,16 @@ function KickoffWizard() {
       setKickoff(k);
       setCliente((k as any).clientes);
       setPasso((k as any).passo_atual ?? 1);
-      // Lê responsavel_implementacao do campo ferias_programadas (reusamos a coluna)
+
+      // Reuso de colunas existentes pra evitar migration:
+      // - ferias_programadas → responsavel_implementacao
+      // - participantes_cliente.operador_atendimento → operador_atendimento
+      const participantes = (k as any).participantes_cliente ?? {};
       setDataState({
-        participantes_cliente: (k as any).participantes_cliente ?? [],
+        participantes_cliente: participantes,
         validacoes_contratuais: (k as any).validacoes_contratuais ?? {},
-        responsavel_implementacao: (k as any).ferias_programadas, // reuso da coluna
+        responsavel_implementacao: (k as any).ferias_programadas,
+        operador_atendimento: participantes?.operador_atendimento ?? null,
         desafio_principal: (k as any).desafio_principal,
         expectativa: (k as any).expectativa,
         mapeamento: (k as any).mapeamento ?? {},
@@ -107,9 +114,12 @@ function KickoffWizard() {
       await supabase
         .from("kickoffs")
         .update({
-          participantes_cliente: v.participantes_cliente,
+          participantes_cliente: {
+            ...(v.participantes_cliente ?? {}),
+            operador_atendimento: v.operador_atendimento,
+          },
           validacoes_contratuais: v.validacoes_contratuais,
-          ferias_programadas: v.responsavel_implementacao, // salva no mesmo campo, sem alterar banco
+          ferias_programadas: v.responsavel_implementacao,
           desafio_principal: v.desafio_principal,
           expectativa: v.expectativa,
           mapeamento: v.mapeamento,
@@ -208,12 +218,7 @@ function KickoffWizard() {
       </header>
 
       <main className="flex-1 px-6 py-6 overflow-y-auto">
-        <PassoComponent
-          cliente={cliente}
-          data={data}
-          setData={setData}
-          modoApresentacao={modoApresentacao}
-        />
+        <PassoComponent cliente={cliente} data={data} setData={setData} modoApresentacao={modoApresentacao} />
       </main>
 
       <footer className="border-t border-border bg-card px-6 py-3 flex items-center justify-between">

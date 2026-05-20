@@ -18,12 +18,13 @@ import {
   Info,
   Pencil,
   X,
+  ExternalLink,
 } from "lucide-react";
 
 type Cliente = {
   id: string;
   nome: string;
-  especialidade: string | null;
+  especialidade: string | null; // exibido como "Categoria" na UI
   gerente: string | null;
   configurador: string | null;
   plano: string | null;
@@ -39,6 +40,7 @@ type KickoffData = {
   participantes_cliente: any;
   validacoes_contratuais: any;
   responsavel_implementacao: string | null;
+  operador_atendimento: string | null; // movido pra cá do mapeamento
   desafio_principal: string | null;
   expectativa: string | null;
   mapeamento: any;
@@ -54,7 +56,7 @@ type StepProps = {
   modoApresentacao: boolean;
 };
 
-// ---------- PASSO 1: Boas-vindas ----------
+// ============ PASSO 1: Boas-vindas ============
 export function Passo1BoasVindas({ cliente, modoApresentacao }: StepProps) {
   return (
     <div className="max-w-3xl mx-auto text-center py-8">
@@ -82,7 +84,7 @@ export function Passo1BoasVindas({ cliente, modoApresentacao }: StepProps) {
   );
 }
 
-// ---------- PASSO 2: Quem é quem ----------
+// ============ PASSO 2: Quem é quem ============
 export function Passo2QuemEhQuem({ cliente, data, setData, modoApresentacao }: StepProps) {
   return (
     <div className="max-w-4xl mx-auto py-4">
@@ -125,7 +127,7 @@ export function Passo2QuemEhQuem({ cliente, data, setData, modoApresentacao }: S
   );
 }
 
-// ---------- PASSO 3: Combinados (texto ajustado: 45min) ----------
+// ============ PASSO 3: Combinados ============
 export function Passo3Combinados() {
   const topicos = [
     "Validação do que foi contratado",
@@ -156,7 +158,7 @@ export function Passo3Combinados() {
   );
 }
 
-// ---------- PASSO 4: Validação contratual (5 cards editáveis: Plano, Mensalidade, Usuários, Créditos, Integração) ----------
+// ============ PASSO 4: Validação contratual ============
 export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresentacao }: StepProps) {
   const validacoes = data.validacoes_contratuais ?? {};
 
@@ -198,11 +200,7 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
     setData({
       validacoes_contratuais: {
         ...validacoes,
-        [campo]: {
-          confirmado: true,
-          valor: valorAtual,
-          confirmado_em: new Date().toISOString(),
-        },
+        [campo]: { confirmado: true, valor: valorAtual, confirmado_em: new Date().toISOString() },
       },
     });
   };
@@ -211,11 +209,7 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
     setData({
       validacoes_contratuais: {
         ...validacoes,
-        [campo]: {
-          ...(validacoes[campo] ?? {}),
-          valor: novoValor,
-          confirmado: false, // edição limpa a confirmação anterior
-        },
+        [campo]: { ...(validacoes[campo] ?? {}), valor: novoValor, confirmado: false },
       },
     });
   };
@@ -287,7 +281,7 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
   );
 }
 
-// ---------- PASSO 5: Cronograma (diretrizes reescritas, sem "Pontualidade", pergunta nova) ----------
+// ============ PASSO 5: Cronograma + Responsável + Quem opera ============
 export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps) {
   const etapas = [
     { icon: PhoneCall, titulo: "Kickoff", prazo: "Hoje", atual: true },
@@ -353,23 +347,356 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
       </div>
 
       {!modoApresentacao && (
-        <Card className="p-5 border-border">
-          <Label>Quem vai ser o responsável pela implementação?</Label>
-          <p className="text-xs text-muted-foreground mt-1 mb-2">
-            Responsável por realizar os testes, passar feedbacks das alterações que precisam ser ajustadas, etc.
-          </p>
-          <Input
-            value={data.responsavel_implementacao ?? ""}
-            onChange={(e) => setData({ responsavel_implementacao: e.target.value })}
-            placeholder="Nome e função da pessoa-chave da clínica"
-          />
-        </Card>
+        <div className="space-y-3">
+          <Card className="p-5 border-border">
+            <Label>Quem vai ser o responsável pela implementação?</Label>
+            <p className="text-xs text-muted-foreground mt-1 mb-2">
+              Responsável por realizar os testes, passar feedbacks das alterações que precisam ser ajustadas, etc.
+            </p>
+            <Input
+              value={data.responsavel_implementacao ?? ""}
+              onChange={(e) => setData({ responsavel_implementacao: e.target.value })}
+              placeholder="Nome e função da pessoa-chave da clínica"
+            />
+          </Card>
+
+          <Card className="p-5 border-border">
+            <Label>Quem opera o atendimento hoje?</Label>
+            <p className="text-xs text-muted-foreground mt-1 mb-2">
+              Recepção, secretária, atendente — como funciona o fluxo atual.
+            </p>
+            <Input
+              value={data.operador_atendimento ?? ""}
+              onChange={(e) => setData({ operador_atendimento: e.target.value })}
+              placeholder="Ex.: 2 secretárias na recepção atendem WhatsApp + telefone"
+            />
+          </Card>
+        </div>
       )}
     </div>
   );
 }
 
-// ---------- PASSO 6: Demonstração (mensagens editáveis) ----------
+// ============ PASSO 6: Mapeamento (estrutura modular Sim/Não + textarea + perguntas por integração) ============
+
+// --- Componente helper: pergunta Sim/Não com textarea condicional ---
+function SimNaoComTextarea({
+  pergunta,
+  helper,
+  valor,
+  onChange,
+  modoApresentacao,
+  placeholderTextarea,
+  alertaSeSim,
+  alertaSeNao,
+}: {
+  pergunta: string;
+  helper?: string;
+  valor: { resposta?: "sim" | "nao" | null; detalhe?: string } | undefined;
+  onChange: (v: { resposta?: "sim" | "nao" | null; detalhe?: string }) => void;
+  modoApresentacao: boolean;
+  placeholderTextarea?: string;
+  alertaSeSim?: React.ReactNode;
+  alertaSeNao?: React.ReactNode;
+}) {
+  const resposta = valor?.resposta ?? null;
+  const detalhe = valor?.detalhe ?? "";
+
+  return (
+    <Card className="p-4 border-border">
+      <Label className="text-sm">{pergunta}</Label>
+      {helper && <p className="text-xs text-muted-foreground mt-1">{helper}</p>}
+
+      {modoApresentacao ? (
+        <p className="text-sm text-muted-foreground mt-2">
+          {resposta ? (
+            <>
+              <strong>{resposta === "sim" ? "Sim" : "Não"}</strong>
+              {detalhe && <> · {detalhe}</>}
+            </>
+          ) : (
+            "—"
+          )}
+        </p>
+      ) : (
+        <>
+          <div className="flex gap-2 mt-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={resposta === "sim" ? "default" : "outline"}
+              onClick={() => onChange({ ...valor, resposta: resposta === "sim" ? null : "sim" })}
+            >
+              Sim
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={resposta === "nao" ? "default" : "outline"}
+              onClick={() => onChange({ ...valor, resposta: resposta === "nao" ? null : "nao" })}
+            >
+              Não
+            </Button>
+          </div>
+
+          {resposta === "sim" && (
+            <>
+              <Textarea
+                value={detalhe}
+                onChange={(e) => onChange({ ...valor, detalhe: e.target.value })}
+                placeholder={placeholderTextarea ?? "Conte mais detalhes"}
+                rows={2}
+                className="mt-2"
+              />
+              {alertaSeSim}
+            </>
+          )}
+          {resposta === "nao" && alertaSeNao}
+        </>
+      )}
+    </Card>
+  );
+}
+
+// --- Componente helper: pergunta de texto livre ---
+function TextLivre({
+  pergunta,
+  valor,
+  onChange,
+  modoApresentacao,
+  placeholder,
+  rows = 2,
+}: {
+  pergunta: string;
+  valor: string;
+  onChange: (v: string) => void;
+  modoApresentacao: boolean;
+  placeholder?: string;
+  rows?: number;
+}) {
+  return (
+    <Card className="p-4 border-border">
+      <Label className="text-sm">{pergunta}</Label>
+      {modoApresentacao ? (
+        <p className="text-sm text-muted-foreground mt-2 whitespace-pre-wrap">{valor || "—"}</p>
+      ) : (
+        <Textarea
+          value={valor}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder ?? "Resposta do cliente"}
+          rows={rows}
+          className="mt-2"
+        />
+      )}
+    </Card>
+  );
+}
+
+// --- Componente helper: dropdown ---
+function DropdownSimples({
+  pergunta,
+  valor,
+  onChange,
+  modoApresentacao,
+  opcoes,
+}: {
+  pergunta: string;
+  valor: string;
+  onChange: (v: string) => void;
+  modoApresentacao: boolean;
+  opcoes: string[];
+}) {
+  return (
+    <Card className="p-4 border-border">
+      <Label className="text-sm">{pergunta}</Label>
+      {modoApresentacao ? (
+        <p className="text-sm text-muted-foreground mt-2">{valor || "—"}</p>
+      ) : (
+        <select
+          value={valor}
+          onChange={(e) => onChange(e.target.value)}
+          className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="">Selecione…</option>
+          {opcoes.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+      )}
+    </Card>
+  );
+}
+
+export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: StepProps) {
+  const mapeamento = data.mapeamento ?? {};
+  const integracao = cliente.integracao ?? "";
+  const semIntegracao = ["Triagem", "Triagem + IA", "100% IA"].some((s) =>
+    integracao.toLowerCase().includes(s.toLowerCase())
+  );
+
+  const setCampo = (key: string, valor: any) => {
+    setData({ mapeamento: { ...mapeamento, [key]: valor } });
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto py-4">
+      <h2 className="text-2xl font-semibold mb-2">Mapeamento da clínica</h2>
+      <p className="text-sm text-muted-foreground mb-6">Hora de conhecer melhor o seu dia a dia.</p>
+
+      {/* Pergunta âncora */}
+      <Card className="p-6 border-cloudia/40 bg-cloudia/5 mb-6">
+        <div className="flex items-start gap-2">
+          <Label className="text-base font-medium flex-1">
+            Quais os principais desafios enfrentados hoje e qual sua expectativa com a contratação da Cloudia?
+          </Label>
+          {!modoApresentacao && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-muted-foreground hover:text-foreground">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs text-xs">
+                  Esta resposta é referência para conversas de retenção futuras — anote em detalhes.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+        {modoApresentacao ? (
+          <p className="text-sm mt-3 whitespace-pre-wrap">{data.desafio_principal ?? "—"}</p>
+        ) : (
+          <Textarea
+            value={data.desafio_principal ?? ""}
+            onChange={(e) => setData({ desafio_principal: e.target.value })}
+            rows={4}
+            placeholder="Anote em detalhes a dor do cliente e o que ele espera..."
+            className="mt-3"
+          />
+        )}
+      </Card>
+
+      {/* Perguntas genéricas */}
+      <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-3">
+        Conhecendo sua jornada
+      </h3>
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <SimNaoComTextarea
+          pergunta="Tem mais de uma unidade?"
+          valor={mapeamento.unidades}
+          onChange={(v) => setCampo("unidades", v)}
+          modoApresentacao={modoApresentacao}
+          placeholderTextarea="Quais e quantas?"
+        />
+
+        {semIntegracao && (
+          <SimNaoComTextarea
+            pergunta="Você utiliza algum sistema de agendamento?"
+            valor={mapeamento.sistema_agendamento}
+            onChange={(v) => setCampo("sistema_agendamento", v)}
+            modoApresentacao={modoApresentacao}
+            placeholderTextarea="Qual sistema?"
+          />
+        )}
+
+        <TextLivre
+          pergunta="Quais as especialidades que você quer oferecer e profissionais de cada uma?"
+          valor={mapeamento.especialidades_profissionais ?? ""}
+          onChange={(v) => setCampo("especialidades_profissionais", v)}
+          modoApresentacao={modoApresentacao}
+          placeholder="Ex.: Ortodontia (Dr. João, Dra. Ana), Implante (Dr. Carlos)"
+          rows={3}
+        />
+
+        <TextLivre
+          pergunta="Que tipo de serviço vocês oferecem?"
+          valor={mapeamento.tipos_servico ?? ""}
+          onChange={(v) => setCampo("tipos_servico", v)}
+          modoApresentacao={modoApresentacao}
+          placeholder="Procedimentos, consultas, exames, etc."
+          rows={2}
+        />
+
+        <SimNaoComTextarea
+          pergunta="Atende convênios?"
+          valor={mapeamento.convenios}
+          onChange={(v) => setCampo("convenios", v)}
+          modoApresentacao={modoApresentacao}
+          placeholderTextarea="Quais convênios?"
+        />
+
+        <DropdownSimples
+          pergunta="Vai usar WhatsApp Web ou API oficial?"
+          valor={mapeamento.whatsapp_tipo ?? ""}
+          onChange={(v) => setCampo("whatsapp_tipo", v)}
+          modoApresentacao={modoApresentacao}
+          opcoes={["WhatsApp Web", "API Oficial"]}
+        />
+      </div>
+
+      {/* Perguntas específicas por integração — Clinicorp */}
+      {integracao.toLowerCase().includes("clinicorp") && (
+        <>
+          <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-3 flex items-center gap-2">
+            <span>Perguntas específicas — Clinicorp</span>
+            <span className="text-[10px] bg-cloudia/10 text-cloudia px-2 py-0.5 rounded-full normal-case tracking-normal">
+              integração selecionada
+            </span>
+          </h3>
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <SimNaoComTextarea
+              pergunta="Os horários dos profissionais já estão cadastrados no Clinicorp?"
+              valor={mapeamento.clinicorp_horarios}
+              onChange={(v) => setCampo("clinicorp_horarios", v)}
+              modoApresentacao={modoApresentacao}
+              alertaSeNao={
+                <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-900 leading-relaxed">
+                  <AlertCircle className="h-3 w-3 inline mr-1 -mt-0.5" />
+                  Verificar se o fluxo do cliente é <strong>API Online</strong> ou <strong>API Completa</strong>. Enviar
+                  link de tutorial no WhatsApp.
+                </div>
+              }
+            />
+
+            <SimNaoComTextarea
+              pergunta="Essas especialidades têm horários diferentes?"
+              valor={mapeamento.clinicorp_horarios_diferentes}
+              onChange={(v) => setCampo("clinicorp_horarios_diferentes", v)}
+              modoApresentacao={modoApresentacao}
+              alertaSeSim={
+                <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-900 leading-relaxed">
+                  <AlertCircle className="h-3 w-3 inline mr-1 -mt-0.5" />
+                  Verificar a configuração dos <strong>slots no Clinicorp</strong>.{" "}
+                  <a
+                    href="https://www.notion.so/cloudiabot/Fluxos-Clinicorp-b748e29fe079455fbec5ea13acdadaaf?source=copy_link#24152f76f2c080dda25cec982409c8ba"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline inline-flex items-center gap-0.5"
+                  >
+                    Mais informações <ExternalLink className="h-2.5 w-2.5" />
+                  </a>
+                </div>
+              }
+            />
+
+            <SimNaoComTextarea
+              pergunta="Está em processo de migração de outro sistema?"
+              valor={mapeamento.clinicorp_migracao}
+              onChange={(v) => setCampo("clinicorp_migracao", v)}
+              modoApresentacao={modoApresentacao}
+              placeholderTextarea="De qual sistema está migrando?"
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ============ PASSO 7: Demonstração ao vivo (era passo 6) ============
 const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: { from: string; texto: string; hora: string }[] }> = {
   chatgpt: {
     label: "100% ChatGPT",
@@ -405,7 +732,7 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
   },
 };
 
-export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps) {
+export function Passo7DemoAoVivo({ data, setData, modoApresentacao }: StepProps) {
   const variacaoAtual = (data.variacao_demo ?? "chatgpt") as string;
   const mensagensCustomizadas = data.mensagens_demo?.[variacaoAtual];
   const demoInicial = DEMOS_INICIAIS[variacaoAtual];
@@ -417,9 +744,7 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
   const salvarEdicao = (idx: number) => {
     const novas = [...mensagens];
     novas[idx] = { ...novas[idx], texto: textoEdicao };
-    setData({
-      mensagens_demo: { ...(data.mensagens_demo ?? {}), [variacaoAtual]: novas },
-    });
+    setData({ mensagens_demo: { ...(data.mensagens_demo ?? {}), [variacaoAtual]: novas } });
     setEditandoIdx(null);
     setTextoEdicao("");
   };
@@ -465,7 +790,7 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
       </div>
 
       <div className="grid grid-cols-[260px_1fr] gap-4 items-start">
-        {/* Coluna esquerda: WhatsApp do paciente */}
+        {/* WhatsApp da paciente */}
         <div>
           <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1.5">
             <Phone className="h-3 w-3" /> O que sua paciente vê
@@ -500,7 +825,7 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
           </div>
         </div>
 
-        {/* Coluna direita: Central de Mensagens */}
+        {/* Central de Mensagens */}
         <div>
           <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1.5">
             <MessageCircle className="h-3 w-3" /> O que sua equipe vê na Central de Mensagens
@@ -650,100 +975,20 @@ export function Passo6DemoAoVivo({ data, setData, modoApresentacao }: StepProps)
   );
 }
 
-// ---------- PASSO 7: Mapeamento (nota interna agora é tooltip discreto) ----------
-const PERGUNTAS_MAPEAMENTO = [
-  { key: "matriz_filiais", label: "Matriz ou filiais?" },
-  { key: "precos_unidade", label: "Os preços mudam por unidade?" },
-  { key: "outros_sistemas", label: "Outros sistemas usados" },
-  { key: "estrutura_equipe", label: "Estrutura da equipe, funcionários, gestão" },
-  { key: "especialidades", label: "Especialidades + nº de profissionais" },
-  { key: "tipos_atendimento", label: "Tipos de atendimento" },
-  { key: "convenios", label: "Atende convênios?" },
-  { key: "filtro_convenios", label: "Como filtra os planos dos convênios?" },
-  { key: "operacionaliza", label: "Quem operacionaliza o atendimento hoje?" },
-  { key: "whatsapp_api", label: "WhatsApp Web ou API oficial?" },
-];
-
-export function Passo7Mapeamento({ data, setData, modoApresentacao }: StepProps) {
-  const mapeamento = data.mapeamento ?? {};
-  return (
-    <div className="max-w-5xl mx-auto py-4">
-      <h2 className="text-2xl font-semibold mb-2">Mapeamento da clínica</h2>
-      <p className="text-sm text-muted-foreground mb-8">Hora de conhecer melhor o seu dia a dia.</p>
-
-      <Card className="p-6 border-cloudia/40 bg-cloudia/5 mb-6">
-        <div className="flex items-start gap-2">
-          <Label className="text-base font-medium flex-1">
-            Quais os principais desafios enfrentados hoje e qual sua expectativa com a contratação da Cloudia?
-          </Label>
-          {!modoApresentacao && (
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button type="button" className="text-muted-foreground hover:text-foreground">
-                    <Info className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs text-xs">
-                  Esta resposta é referência para conversas de retenção futuras — anote em detalhes.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-        {modoApresentacao ? (
-          <p className="text-sm mt-3">{data.desafio_principal ?? "—"}</p>
-        ) : (
-          <Textarea
-            value={data.desafio_principal ?? ""}
-            onChange={(e) => setData({ desafio_principal: e.target.value })}
-            rows={4}
-            placeholder="Anote em detalhes a dor do cliente e o que ele espera..."
-            className="mt-3"
-          />
-        )}
-      </Card>
-
-      <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-3">
-        Conhecendo sua jornada
-      </h3>
-      <div className="grid grid-cols-2 gap-3">
-        {PERGUNTAS_MAPEAMENTO.map((p) => (
-          <Card key={p.key} className="p-4 border-border">
-            <Label className="text-sm">{p.label}</Label>
-            {modoApresentacao ? (
-              <p className="text-sm text-muted-foreground mt-2">{mapeamento[p.key] || "—"}</p>
-            ) : (
-              <Input
-                value={mapeamento[p.key] ?? ""}
-                onChange={(e) => setData({ mapeamento: { ...mapeamento, [p.key]: e.target.value } })}
-                className="mt-2"
-                placeholder="Resposta do cliente"
-              />
-            )}
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ---------- PASSO 8: Próximos passos ----------
-// 3 compromissos finais com o cliente + campo de pendências da reunião.
+// ============ PASSO 8: Próximos passos ============
 // Pra editar os textos: altere o array COMPROMISSOS_FINAIS abaixo.
-// Cada compromisso tem: icon (lucide-react), titulo, descricao.
 const COMPROMISSOS_FINAIS = [
   {
     icon: Users,
     titulo: "Participação do responsável",
     descricao:
-      "A participação ativa do responsável pela implementação é essencial. É essa pessoa que vai testar o robô, dar feedbacks e garantir que tudo esteja redondo até a utilização final.",
+      "A participação ativa do responsável pela implementação é essencial. É essa pessoa que vai testar o robô, dar feedbacks e garantir que tudo esteja redondo até o go-live.",
   },
   {
     icon: Clock,
     titulo: "Seguir o cronograma",
     descricao:
-      "Nosso processo é desenhado pra durar 30 dias. Se algum dos prazos atrasar (configuração, testes, treinamento), o cronograma todo desliza e a clínica fica mais tempo sem usar o robô.",
+      "Nosso processo é desenhado pra durar 30 dias. Se algum dos prazos atrasar (configuração, testes, treinamento), o cronograma todo desliza — e a clínica fica mais tempo sem usar o robô.",
   },
   {
     icon: MessageCircle,
@@ -766,7 +1011,6 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
         Pra que tudo dê certo, esses 3 pontos são importantes:
       </p>
 
-      {/* 3 compromissos visuais (aparecem em ambos os modos) */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {COMPROMISSOS_FINAIS.map((c, i) => {
           const Icon = c.icon;
@@ -782,17 +1026,14 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
         })}
       </div>
 
-      {/* Campo de pendências — capturado durante a reunião */}
       <Card className="p-5 border-border mb-6">
-        <Label className="text-sm font-medium">
-          Pendências levantadas nesta reunião
-        </Label>
+        <Label className="text-sm font-medium">Pendências levantadas nesta reunião</Label>
         <p className="text-xs text-muted-foreground mt-1 mb-3">
           Anote qualquer ponto que ficou em aberto durante a kickoff (dúvidas técnicas, decisões pendentes,
           ajustes que o cliente quer revisar, etc).
         </p>
         {modoApresentacao ? (
-          <p className="text-sm">{data.expectativa ?? "Nenhuma pendência registrada."}</p>
+          <p className="text-sm whitespace-pre-wrap">{data.expectativa ?? "Nenhuma pendência registrada."}</p>
         ) : (
           <Textarea
             value={data.expectativa ?? ""}
@@ -803,7 +1044,6 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
         )}
       </Card>
 
-      {/* Resumo interno — só aparece no modo edição (cliente não vê) */}
       {!modoApresentacao && (
         <Card className="p-5 border-border bg-muted/30">
           <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-3">
@@ -813,7 +1053,7 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
             <Row label="Cliente" valor={cliente.nome} />
             <Row label="Gerente de contas" valor={cliente.gerente ?? "—"} />
             <Row label="Validações contratuais" valor={`${confirmados} de 5 confirmadas`} />
-            <Row label="Respostas de mapeamento" valor={`${respostas} de 10 preenchidas`} />
+            <Row label="Respostas de mapeamento" valor={`${respostas} preenchidas`} />
             <Row label="Desafio principal capturado" valor={data.desafio_principal ? "Sim" : "Não"} />
             <Row label="Variação demo apresentada" valor={data.variacao_demo ?? "—"} />
             <Row label="Pendências registradas" valor={data.expectativa ? "Sim" : "Não"} />
