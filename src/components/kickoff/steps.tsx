@@ -734,7 +734,7 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
   },
 };
 
-export function Passo7DemoAoVivo({ data, setData, modoApresentacao }: StepProps) {
+export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: StepProps) {
   const variacaoAtual = (data.variacao_demo ?? "chatgpt") as string;
   const mensagensCustomizadas = data.mensagens_demo?.[variacaoAtual];
   const demoInicial = DEMOS_INICIAIS[variacaoAtual];
