@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { LayoutDashboard, Presentation, Users, LogOut, Cloud } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -45,8 +46,12 @@ export function AppShell({ children, userEmail }: { children: React.ReactNode; u
             );
           })}
         </nav>
-        <div className="border-t border-border px-3 py-3">
-          <div className="px-2 pb-2 text-xs text-muted-foreground truncate">{userEmail}</div>
+        <div className="border-t border-border px-3 py-3 space-y-2">
+          <div className="flex items-center justify-between px-2">
+            <span className="text-xs text-muted-foreground">Tema</span>
+            <ThemeToggle />
+          </div>
+          <div className="px-2 pb-1 text-xs text-muted-foreground truncate">{userEmail}</div>
           <button
             onClick={async () => {
               await supabase.auth.signOut();
