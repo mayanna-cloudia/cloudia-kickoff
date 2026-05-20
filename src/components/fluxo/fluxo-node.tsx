@@ -1,4 +1,4 @@
-import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { Handle, Position } from "@xyflow/react";
 import { CORES_NO, LABELS_TIPO, type TipoNo } from "@/lib/fluxos-padrao";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -12,7 +12,7 @@ type FluxoNodeData = {
   readOnly?: boolean;
 };
 
-export function FluxoNode({ data, selected }: NodeProps & { data: FluxoNodeData }) {
+export function FluxoNode({ data, selected }: { data: FluxoNodeData; selected?: boolean }) {
   const cores = CORES_NO[data.tipo] ?? CORES_NO.boas_vindas;
   const [editandoTitulo, setEditandoTitulo] = useState(false);
   const [editandoDesc, setEditandoDesc] = useState(false);
