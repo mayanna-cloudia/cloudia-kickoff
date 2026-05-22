@@ -855,7 +855,7 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                   <span className="bg-[#2a3142] text-gray-400 text-[10px] px-2.5 py-0.5 rounded-full">Hoje</span>
                 </div>
 
-                {mensagens.map((m, i) => {
+                {mensagens.map((m: any, i: number) => {
                   const isEditando = editandoIdx === i;
                   return (
                     <div key={i} className={`flex flex-col ${m.from === "robo" ? "items-end" : "items-start"} group`}>
