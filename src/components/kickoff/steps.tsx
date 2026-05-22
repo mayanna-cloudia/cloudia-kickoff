@@ -20,8 +20,7 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
-import { FluxoViewer } from "@/components/fluxo/fluxo-viewer";
-import type { VariacaoFluxo } from "@/lib/fluxos-padrao";
+import { FluxoReadOnly } from "@/components/fluxos/fluxo-read-only";
 
 type Cliente = {
   id: string;
@@ -809,7 +808,7 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                 </div>
               </div>
               <div className="flex-1 p-2 flex flex-col gap-1.5 overflow-auto">
-                {mensagens.map((m: any, i: number) => (
+                {mensagens.map((m, i) => (
                   <div
                     key={i}
                     className={`rounded-md px-2 py-1.5 max-w-[80%] shadow-sm ${
@@ -856,7 +855,7 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                   <span className="bg-[#2a3142] text-gray-400 text-[10px] px-2.5 py-0.5 rounded-full">Hoje</span>
                 </div>
 
-                {mensagens.map((m: any, i: number) => {
+                {mensagens.map((m, i) => {
                   const isEditando = editandoIdx === i;
                   return (
                     <div key={i} className={`flex flex-col ${m.from === "robo" ? "items-end" : "items-start"} group`}>
@@ -974,13 +973,12 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
         </div>
       </div>
 
-      {/* Fluxo do robô (read-only) */}
-      <section className="mt-10">
-        {!modoApresentacao && (
-          <h3 className="text-lg font-semibold mb-3">Fluxo do robô</h3>
-        )}
-        <FluxoViewer clienteId={cliente.id} variacao={variacaoAtual as VariacaoFluxo} />
-      </section>
+      {/* Fluxo do robô (read-only) — abaixo das duas colunas */}
+      <FluxoReadOnly
+        clienteId={cliente.id}
+        variacao={variacaoAtual}
+        modoApresentacao={modoApresentacao}
+      />
     </div>
   );
 }

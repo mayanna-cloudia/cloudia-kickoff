@@ -1,113 +1,218 @@
-import type { Node, Edge } from "@xyflow/react";
+// Fluxos padrão hardcoded por variação
+// Pra customizar, edite os arrays nodes/edges abaixo
 
-export type VariacaoFluxo = "chatgpt" | "integracao" | "chatgpt_integracao";
-
-export type TipoNo =
-  | "boas_vindas"
-  | "menu"
-  | "coleta"
-  | "decisao"
-  | "acao"
-  | "transferencia"
-  | "sucesso";
-
-export const TIPOS_NO: { tipo: TipoNo; label: string; cor: string; corBorda: string }[] = [
-  { tipo: "boas_vindas", label: "Boas-vindas", cor: "#dcfce7", corBorda: "#86efac" },
-  { tipo: "menu", label: "Menu/Pergunta", cor: "#dbeafe", corBorda: "#93c5fd" },
-  { tipo: "coleta", label: "Coleta de dado", cor: "#ede9fe", corBorda: "#c4b5fd" },
-  { tipo: "decisao", label: "Decisão", cor: "#fef9c3", corBorda: "#fde047" },
-  { tipo: "acao", label: "Ação de sistema", cor: "#f3e8ff", corBorda: "#d8b4fe" },
-  { tipo: "transferencia", label: "Transferência humana", cor: "#fee2e2", corBorda: "#fca5a5" },
-  { tipo: "sucesso", label: "Sucesso", cor: "#bbf7d0", corBorda: "#4ade80" },
-];
-
-export const CORES_NO: Record<TipoNo, { bg: string; border: string }> = Object.fromEntries(
-  TIPOS_NO.map((t) => [t.tipo, { bg: t.cor, border: t.corBorda }])
-) as Record<TipoNo, { bg: string; border: string }>;
-
-export const LABELS_TIPO: Record<TipoNo, string> = Object.fromEntries(
-  TIPOS_NO.map((t) => [t.tipo, t.label])
-) as Record<TipoNo, string>;
-
-const mkNo = (
-  id: string,
-  tipo: TipoNo,
-  titulo: string,
-  descricao: string,
-  x: number,
-  y: number
-): Node => ({
-  id,
-  type: "fluxo",
-  position: { x, y },
-  data: { tipo, titulo, descricao },
-});
-
-const fluxoChatgpt = {
-  nodes: [
-    mkNo("1", "boas_vindas", "Boas-vindas", "Olá! Sou o assistente virtual da clínica.", 250, 0),
-    mkNo("2", "coleta", "Nome do paciente", "Coleta o nome para personalizar o atendimento.", 250, 130),
-    mkNo("3", "coleta", "Descreva o problema", "Pede ao paciente para descrever a queixa.", 250, 260),
-    mkNo("4", "decisao", "É urgência?", "Classifica via IA se o caso é urgente.", 250, 390),
-    mkNo("5", "transferencia", "Transferir humano", "Encaminha para a equipe agora.", 0, 540),
-    mkNo("6", "sucesso", "Agendamento sugerido", "Sugere horários disponíveis.", 500, 540),
-  ] as Node[],
-  edges: [
-    { id: "e1-2", source: "1", target: "2" },
-    { id: "e2-3", source: "2", target: "3" },
-    { id: "e3-4", source: "3", target: "4" },
-    { id: "e4-5", source: "4", target: "5", label: "Sim" },
-    { id: "e4-6", source: "4", target: "6", label: "Não" },
-  ] as Edge[],
+export type FluxoData = {
+  nodes: Array<{
+    id: string;
+    position: { x: number; y: number };
+    data: { tipo: string; titulo: string; descricao: string };
+  }>;
+  edges: Array<{
+    id: string;
+    source: string;
+    target: string;
+    label?: string;
+    sourceHandle?: string;
+  }>;
 };
 
-const fluxoIntegracao = {
-  nodes: [
-    mkNo("1", "boas_vindas", "Boas-vindas", "Saudação inicial e identificação.", 250, 0),
-    mkNo("2", "menu", "Já é paciente?", "Pergunta se o contato já tem cadastro.", 250, 130),
-    mkNo("3", "acao", "Buscar no sistema", "Consulta cadastro existente via integração.", 0, 280),
-    mkNo("4", "acao", "Criar cadastro", "Cria novo paciente no sistema.", 500, 280),
-    mkNo("5", "coleta", "Confirmar dados", "Confirma nome, CPF e telefone.", 250, 430),
-    mkNo("6", "sucesso", "Agendamento", "Direciona para escolha de horário.", 250, 560),
-  ] as Node[],
-  edges: [
-    { id: "e1-2", source: "1", target: "2" },
-    { id: "e2-3", source: "2", target: "3", label: "Sim" },
-    { id: "e2-4", source: "2", target: "4", label: "Não" },
-    { id: "e3-5", source: "3", target: "5" },
-    { id: "e4-5", source: "4", target: "5" },
-    { id: "e5-6", source: "5", target: "6" },
-  ] as Edge[],
-};
+export const FLUXOS_PADRAO: Record<string, FluxoData> = {
+  chatgpt: {
+    nodes: [
+      {
+        id: "boas-vindas-1",
+        position: { x: 400, y: 0 },
+        data: {
+          tipo: "boas-vindas",
+          titulo: "Boas-vindas",
+          descricao: "Saudação e identificação automática.",
+        },
+      },
+      {
+        id: "coleta-nome",
+        position: { x: 400, y: 140 },
+        data: {
+          tipo: "coleta-dado",
+          titulo: "Nome do paciente",
+          descricao: "Pergunta o nome completo.",
+        },
+      },
+      {
+        id: "coleta-problema",
+        position: { x: 400, y: 280 },
+        data: {
+          tipo: "coleta-dado",
+          titulo: "Descreva o problema",
+          descricao: "IA conversa naturalmente com o paciente.",
+        },
+      },
+      {
+        id: "decisao-urgencia",
+        position: { x: 400, y: 420 },
+        data: {
+          tipo: "decisao",
+          titulo: "Urgência?",
+          descricao: "Classifica gravidade via IA.",
+        },
+      },
+      {
+        id: "transferencia",
+        position: { x: 200, y: 580 },
+        data: {
+          tipo: "transferencia-humana",
+          titulo: "Atendimento humano",
+          descricao: "Encaminha urgências à equipe.",
+        },
+      },
+      {
+        id: "sucesso-1",
+        position: { x: 600, y: 580 },
+        data: {
+          tipo: "sucesso",
+          titulo: "Agendado",
+          descricao: "Confirma horário e envia lembretes.",
+        },
+      },
+    ],
+    edges: [
+      { id: "e1", source: "boas-vindas-1", target: "coleta-nome" },
+      { id: "e2", source: "coleta-nome", target: "coleta-problema" },
+      { id: "e3", source: "coleta-problema", target: "decisao-urgencia" },
+      { id: "e4", source: "decisao-urgencia", target: "transferencia", label: "Sim" },
+      { id: "e5", source: "decisao-urgencia", target: "sucesso-1", label: "Não" },
+    ],
+  },
 
-const fluxoChatgptIntegracao = {
-  nodes: [
-    mkNo("1", "boas_vindas", "Boas-vindas", "Saudação e identificação automática.", 250, 0),
-    mkNo("2", "acao", "Buscar paciente", "Tenta localizar no sistema via WhatsApp.", 250, 130),
-    mkNo("3", "coleta", "Descreva o problema", "IA conversa naturalmente com o paciente.", 250, 260),
-    mkNo("4", "decisao", "Urgência?", "Classifica gravidade via IA.", 250, 390),
-    mkNo("5", "transferencia", "Atendimento humano", "Encaminha urgências à equipe.", 0, 540),
-    mkNo("6", "acao", "Consultar agenda", "Busca horários disponíveis no sistema.", 500, 540),
-    mkNo("7", "sucesso", "Agendado", "Confirma horário e envia lembretes.", 500, 670),
-  ] as Node[],
-  edges: [
-    { id: "e1-2", source: "1", target: "2" },
-    { id: "e2-3", source: "2", target: "3" },
-    { id: "e3-4", source: "3", target: "4" },
-    { id: "e4-5", source: "4", target: "5", label: "Sim" },
-    { id: "e4-6", source: "4", target: "6", label: "Não" },
-    { id: "e6-7", source: "6", target: "7" },
-  ] as Edge[],
-};
+  integracao: {
+    nodes: [
+      {
+        id: "boas-vindas-1",
+        position: { x: 400, y: 0 },
+        data: {
+          tipo: "boas-vindas",
+          titulo: "Boas-vindas",
+          descricao: "Saudação inicial.",
+        },
+      },
+      {
+        id: "menu-paciente",
+        position: { x: 400, y: 140 },
+        data: {
+          tipo: "menu-pergunta",
+          titulo: "Já é paciente?",
+          descricao: "Pergunta de identificação.",
+        },
+      },
+      {
+        id: "buscar-paciente",
+        position: { x: 200, y: 300 },
+        data: {
+          tipo: "acao-sistema",
+          titulo: "Buscar paciente",
+          descricao: "Consulta cadastro no sistema integrado.",
+        },
+      },
+      {
+        id: "criar-paciente",
+        position: { x: 600, y: 300 },
+        data: {
+          tipo: "acao-sistema",
+          titulo: "Criar cadastro",
+          descricao: "Coleta dados e cria no sistema.",
+        },
+      },
+      {
+        id: "agendar",
+        position: { x: 400, y: 460 },
+        data: {
+          tipo: "acao-sistema",
+          titulo: "Consultar agenda",
+          descricao: "Busca horários disponíveis no sistema.",
+        },
+      },
+      {
+        id: "sucesso-1",
+        position: { x: 400, y: 600 },
+        data: {
+          tipo: "sucesso",
+          titulo: "Agendado",
+          descricao: "Confirma e envia lembrete.",
+        },
+      },
+    ],
+    edges: [
+      { id: "e1", source: "boas-vindas-1", target: "menu-paciente" },
+      { id: "e2", source: "menu-paciente", target: "buscar-paciente", label: "Sim" },
+      { id: "e3", source: "menu-paciente", target: "criar-paciente", label: "Não" },
+      { id: "e4", source: "buscar-paciente", target: "agendar" },
+      { id: "e5", source: "criar-paciente", target: "agendar" },
+      { id: "e6", source: "agendar", target: "sucesso-1" },
+    ],
+  },
 
-export const FLUXOS_PADRAO: Record<VariacaoFluxo, { nodes: Node[]; edges: Edge[] }> = {
-  chatgpt: fluxoChatgpt,
-  integracao: fluxoIntegracao,
-  chatgpt_integracao: fluxoChatgptIntegracao,
-};
-
-export const VARIACOES_LABEL: Record<VariacaoFluxo, string> = {
-  chatgpt: "100% ChatGPT",
-  integracao: "Apenas integração",
-  chatgpt_integracao: "ChatGPT + integração",
+  chatgpt_integracao: {
+    nodes: [
+      {
+        id: "boas-vindas-1",
+        position: { x: 400, y: 0 },
+        data: {
+          tipo: "boas-vindas",
+          titulo: "Boas-vindas",
+          descricao: "Saudação com IA.",
+        },
+      },
+      {
+        id: "coleta-ia",
+        position: { x: 400, y: 140 },
+        data: {
+          tipo: "coleta-dado",
+          titulo: "Qualificação via IA",
+          descricao: "IA pergunta o motivo e qualifica o paciente.",
+        },
+      },
+      {
+        id: "decisao-tipo",
+        position: { x: 400, y: 290 },
+        data: {
+          tipo: "decisao",
+          titulo: "Que especialidade?",
+          descricao: "IA identifica área e convênio.",
+        },
+      },
+      {
+        id: "buscar-horario",
+        position: { x: 400, y: 440 },
+        data: {
+          tipo: "acao-sistema",
+          titulo: "Consultar agenda",
+          descricao: "Busca horários no sistema integrado.",
+        },
+      },
+      {
+        id: "menu-confirmar",
+        position: { x: 400, y: 580 },
+        data: {
+          tipo: "menu-pergunta",
+          titulo: "Confirmar agendamento?",
+          descricao: "Oferece opções de horário.",
+        },
+      },
+      {
+        id: "sucesso-1",
+        position: { x: 400, y: 740 },
+        data: {
+          tipo: "sucesso",
+          titulo: "Agendado",
+          descricao: "Confirma e envia lembrete.",
+        },
+      },
+    ],
+    edges: [
+      { id: "e1", source: "boas-vindas-1", target: "coleta-ia" },
+      { id: "e2", source: "coleta-ia", target: "decisao-tipo" },
+      { id: "e3", source: "decisao-tipo", target: "buscar-horario" },
+      { id: "e4", source: "buscar-horario", target: "menu-confirmar" },
+      { id: "e5", source: "menu-confirmar", target: "sucesso-1" },
+    ],
+  },
 };

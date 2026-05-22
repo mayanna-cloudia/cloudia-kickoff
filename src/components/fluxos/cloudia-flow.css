@@ -1,0 +1,112 @@
+/* Tema escuro moderno pro React Flow — Cloudia */
+
+.cloudia-flow {
+  background: #0a0e1a;
+  background-image: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.08) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* Controles (zoom +/-, fit view, lock) */
+.cloudia-flow .react-flow__controls {
+  background: rgba(20, 23, 31, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  padding: 4px;
+  gap: 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cloudia-flow .react-flow__controls-button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.cloudia-flow .react-flow__controls-button:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.cloudia-flow .react-flow__controls-button svg {
+  fill: currentColor;
+  width: 14px;
+  height: 14px;
+}
+
+/* Minimap */
+.cloudia-flow .react-flow__minimap {
+  background: rgba(20, 23, 31, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.cloudia-flow .react-flow__minimap-mask {
+  fill: rgba(59, 130, 246, 0.1);
+}
+
+/* Edges (linhas conectoras) */
+.cloudia-flow .react-flow__edge-path {
+  stroke: rgba(148, 163, 184, 0.4);
+  stroke-width: 2;
+}
+
+.cloudia-flow .react-flow__edge.selected .react-flow__edge-path,
+.cloudia-flow .react-flow__edge:hover .react-flow__edge-path {
+  stroke: #3b82f6;
+  stroke-width: 2.5;
+}
+
+.cloudia-flow .react-flow__edge-text {
+  fill: #cbd5e1;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.cloudia-flow .react-flow__edge-textbg {
+  fill: rgba(20, 23, 31, 0.9);
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+  rx: 4;
+}
+
+/* Animação suave em edges */
+.cloudia-flow .react-flow__edge-path {
+  transition: stroke 0.2s ease;
+}
+
+/* Attribution do React Flow (canto inferior) */
+.cloudia-flow .react-flow__attribution {
+  background: transparent;
+  color: rgba(148, 163, 184, 0.3);
+  font-size: 9px;
+}
+
+.cloudia-flow .react-flow__attribution a {
+  color: rgba(148, 163, 184, 0.5);
+}
+
+/* Selection box */
+.cloudia-flow .react-flow__selection {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+/* Nó sendo arrastado */
+.cloudia-flow .react-flow__node.dragging {
+  cursor: grabbing;
+}
