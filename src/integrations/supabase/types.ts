@@ -69,6 +69,7 @@ export type Database = {
           forma_pagamento: string | null
           gerente: string | null
           id: string
+          idclinic: number | null
           integracao: string | null
           medico_contato: string | null
           mensalidade: number | null
@@ -90,6 +91,7 @@ export type Database = {
           forma_pagamento?: string | null
           gerente?: string | null
           id?: string
+          idclinic?: number | null
           integracao?: string | null
           medico_contato?: string | null
           mensalidade?: number | null
@@ -111,6 +113,7 @@ export type Database = {
           forma_pagamento?: string | null
           gerente?: string | null
           id?: string
+          idclinic?: number | null
           integracao?: string | null
           medico_contato?: string | null
           mensalidade?: number | null

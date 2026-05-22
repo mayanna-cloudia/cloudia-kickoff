@@ -1,9 +1,60 @@
 // Fluxos padrão hardcoded por variação
 // Pra customizar, edite os arrays nodes/edges abaixo
 
+export type TipoNo =
+  | "boas_vindas"
+  | "boas-vindas"
+  | "menu-pergunta"
+  | "coleta-dado"
+  | "decisao"
+  | "acao-sistema"
+  | "transferencia-humana"
+  | "sucesso";
+
+export type VariacaoFluxo = "chatgpt" | "integracao" | "chatgpt_integracao";
+
+export const VARIACOES_LABEL: Record<VariacaoFluxo, string> = {
+  chatgpt: "ChatGPT",
+  integracao: "Integração",
+  chatgpt_integracao: "ChatGPT + Integração",
+};
+
+export const CORES_NO: Record<string, { bg: string; border: string }> = {
+  "boas-vindas": { bg: "#d1fae5", border: "#10b981" },
+  boas_vindas: { bg: "#d1fae5", border: "#10b981" },
+  "menu-pergunta": { bg: "#dbeafe", border: "#3b82f6" },
+  "coleta-dado": { bg: "#ede9fe", border: "#8b5cf6" },
+  decisao: { bg: "#fef3c7", border: "#f59e0b" },
+  "acao-sistema": { bg: "#f3e8ff", border: "#a855f7" },
+  "transferencia-humana": { bg: "#ffe4e6", border: "#f43f5e" },
+  sucesso: { bg: "#dcfce7", border: "#22c55e" },
+};
+
+export const LABELS_TIPO: Record<string, string> = {
+  "boas-vindas": "Boas-vindas",
+  boas_vindas: "Boas-vindas",
+  "menu-pergunta": "Menu/Pergunta",
+  "coleta-dado": "Coleta de dado",
+  decisao: "Decisão",
+  "acao-sistema": "Ação de sistema",
+  "transferencia-humana": "Transferência humana",
+  sucesso: "Sucesso",
+};
+
+export const TIPOS_NO: Array<{ tipo: TipoNo; label: string; cor: string; corBorda: string }> = [
+  { tipo: "boas-vindas", label: "Boas-vindas", cor: CORES_NO["boas-vindas"].bg, corBorda: CORES_NO["boas-vindas"].border },
+  { tipo: "menu-pergunta", label: "Menu/Pergunta", cor: CORES_NO["menu-pergunta"].bg, corBorda: CORES_NO["menu-pergunta"].border },
+  { tipo: "coleta-dado", label: "Coleta de dado", cor: CORES_NO["coleta-dado"].bg, corBorda: CORES_NO["coleta-dado"].border },
+  { tipo: "decisao", label: "Decisão", cor: CORES_NO["decisao"].bg, corBorda: CORES_NO["decisao"].border },
+  { tipo: "acao-sistema", label: "Ação de sistema", cor: CORES_NO["acao-sistema"].bg, corBorda: CORES_NO["acao-sistema"].border },
+  { tipo: "transferencia-humana", label: "Transferência humana", cor: CORES_NO["transferencia-humana"].bg, corBorda: CORES_NO["transferencia-humana"].border },
+  { tipo: "sucesso", label: "Sucesso", cor: CORES_NO["sucesso"].bg, corBorda: CORES_NO["sucesso"].border },
+];
+
 export type FluxoData = {
   nodes: Array<{
     id: string;
+    type?: string;
     position: { x: number; y: number };
     data: { tipo: string; titulo: string; descricao: string };
   }>;

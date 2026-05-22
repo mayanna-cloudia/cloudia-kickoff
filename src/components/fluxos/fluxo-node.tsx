@@ -67,7 +67,8 @@ export type FluxoNodeData = {
   readOnly?: boolean;
 };
 
-function FluxoNodeBase({ data, selected }: NodeProps<FluxoNodeData>) {
+function FluxoNodeBase({ data: rawData, selected }: NodeProps) {
+  const data = rawData as unknown as FluxoNodeData;
   const config = TIPO_CONFIG[data.tipo] ?? TIPO_CONFIG["menu-pergunta"];
 
   return (
