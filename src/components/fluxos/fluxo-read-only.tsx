@@ -40,8 +40,8 @@ export function FluxoReadOnly({
         .eq("variacao", variacao)
         .maybeSingle();
 
-      const fluxo = data ?? FLUXOS_PADRAO[variacao as keyof typeof FLUXOS_PADRAO];
-      const nodesReadOnly = (fluxo.nodes ?? []).map((n: any) => ({
+      const fluxo: any = data ?? FLUXOS_PADRAO[variacao as keyof typeof FLUXOS_PADRAO];
+      const nodesReadOnly = (fluxo?.nodes ?? []).map((n: any) => ({
         ...n,
         type: "fluxoNode",
         draggable: false,
@@ -50,7 +50,7 @@ export function FluxoReadOnly({
         data: { ...n.data, readOnly: true },
       }));
       setNodes(nodesReadOnly);
-      setEdges(fluxo.edges ?? []);
+      setEdges((fluxo?.edges ?? []) as any[]);
       setCarregando(false);
     })();
   }, [clienteId, variacao]);
