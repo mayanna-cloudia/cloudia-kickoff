@@ -808,7 +808,7 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                 </div>
               </div>
               <div className="flex-1 p-2 flex flex-col gap-1.5 overflow-auto">
-                {mensagens.map((m, i) => (
+                {mensagens.map((m: any, i: number) => (
                   <div
                     key={i}
                     className={`rounded-md px-2 py-1.5 max-w-[80%] shadow-sm ${
