@@ -640,13 +640,6 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
           placeholderTextarea="Quais convênios?"
         />
 
-        <DropdownSimples
-          pergunta="Vai usar WhatsApp Web ou API oficial?"
-          valor={mapeamento.whatsapp_tipo ?? ""}
-          onChange={(v) => setCampo("whatsapp_tipo", v)}
-          modoApresentacao={modoApresentacao}
-          opcoes={["WhatsApp Web", "API Oficial"]}
-        />
       </div>
 
       {/* Perguntas específicas por integração — Clinicorp */}
