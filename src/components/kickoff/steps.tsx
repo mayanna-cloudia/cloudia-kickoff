@@ -270,12 +270,96 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
         })}
       </div>
 
-      <Card className="p-4 border-amber-200 bg-amber-50/50">
+      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-4">
         <div className="flex items-start gap-2.5">
           <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
           <p className="text-sm text-amber-900">
             A cobrança recorrente começa na data do contrato, <strong>independente do uso da plataforma</strong>.
           </p>
+        </div>
+      </Card>
+
+      <Card className="p-5 border-border">
+        <Label className="text-sm">Vai usar WhatsApp Web ou API Oficial?</Label>
+        <p className="text-xs text-muted-foreground mt-1 mb-3">
+          Confirme com o cliente o tipo de WhatsApp contratado.
+        </p>
+        {modoApresentacao ? (
+          <div className="text-base font-medium">{validacoes.whatsapp_tipo?.valor || "—"}</div>
+        ) : (
+          <div className="flex gap-2 mb-3">
+            {["WhatsApp Web", "API Oficial"].map((opt) => {
+              const ativo = validacoes.whatsapp_tipo?.valor === opt;
+              return (
+                <Button
+                  key={opt}
+                  type="button"
+                  size="sm"
+                  variant={ativo ? "default" : "outline"}
+                  onClick={() =>
+                    setData({
+                      validacoes_contratuais: {
+                        ...validacoes,
+                        whatsapp_tipo: {
+                          confirmado: true,
+                          valor: opt,
+                          confirmado_em: new Date().toISOString(),
+                        },
+                      },
+                    })
+                  }
+                >
+                  {opt}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+
+        {validacoes.whatsapp_tipo?.valor === "API Oficial" && (
+          <div className="mt-3 p-3 rounded-md border border-amber-200 bg-amber-50/60">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+              <div className="text-sm text-amber-900 leading-relaxed">
+                <strong>Importante deixar muito claro pro cliente:</strong> na API Oficial,{" "}
+                <strong>não é a Cloudia</strong> que cobra templates ou bloqueia o envio depois das 24h —{" "}
+                <strong>é a Meta</strong>. Toda mensagem fora da janela de 24h precisa ser um template
+                aprovado pela Meta, e o custo dos templates é cobrado direto por ela.
+              </div>
+            </div>
+            <img
+              src="https://scontent.whatsapp.net/v/t39.8562-34/378456547_1393815101226879_3068617121358519814_n.png?_nc_sid=2fbf2a&_nc_ohc=Xq8nE7tWp8MQ7kNvgEZqB_Z&_nc_zt=3&_nc_ht=scontent.whatsapp.net"
+              alt="Janela de 24h e templates da Meta para WhatsApp Business API"
+              className="mt-3 rounded-md border border-amber-200 max-w-full h-auto block mx-auto"
+              loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
+        )}
+
+        <div className="mt-4 pt-4 border-t border-border">
+          <Label className="text-sm">Está em processo de migração de alguma API de WhatsApp oficial?</Label>
+          <p className="text-xs text-muted-foreground mt-1 mb-2">
+            Caso esteja vindo de outro provedor (Take, Twilio, 360dialog, etc.), é importante mapear.
+          </p>
+          {modoApresentacao ? (
+            <p className="text-sm">{validacoes.migracao_api?.valor || "—"}</p>
+          ) : (
+            <Input
+              value={validacoes.migracao_api?.valor ?? ""}
+              onChange={(e) =>
+                setData({
+                  validacoes_contratuais: {
+                    ...validacoes,
+                    migracao_api: { confirmado: true, valor: e.target.value, confirmado_em: new Date().toISOString() },
+                  },
+                })
+              }
+              placeholder="Não / Sim — de qual provedor?"
+            />
+          )}
         </div>
       </Card>
     </div>
@@ -286,10 +370,10 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
 export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps) {
   const etapas = [
     { icon: PhoneCall, titulo: "Kickoff", prazo: "Hoje", atual: true },
-    { icon: Check, titulo: "1ª Configuração", prazo: "Até 7 dias úteis", atual: false },
-    { icon: AlertCircle, titulo: "Alterações", prazo: "Até 7 dias úteis", atual: false },
-    { icon: Users, titulo: "Treinamento", prazo: "3ª semana", atual: false },
-    { icon: CheckCircle2, titulo: "Finalização", prazo: "4ª semana", atual: false },
+    { icon: Check, titulo: "1ª Configuração", prazo: "7 a 15 dias úteis", atual: false },
+    { icon: AlertCircle, titulo: "Alterações", prazo: "Até ~30 dias (depende da participação do cliente)", atual: false },
+    { icon: Users, titulo: "Treinamento e Ativação", prazo: "Após configuração finalizada", atual: false },
+    { icon: CheckCircle2, titulo: "Finalização", prazo: "Após treinamento", atual: false },
   ];
 
   const diretrizes = [
@@ -338,7 +422,7 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
       </div>
 
       <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-3">Diretrizes</h3>
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-4">
         {diretrizes.map((d, i) => (
           <Card key={i} className="p-4 border-border">
             <div className="text-sm font-medium mb-2">{d.titulo}</div>
@@ -346,6 +430,17 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
           </Card>
         ))}
       </div>
+
+      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-6">
+        <div className="flex items-start gap-2.5">
+          <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+          <div className="text-sm text-amber-900 leading-relaxed">
+            <strong>Treinamento e Ativação:</strong> o treinamento é feito <strong>apenas 1 vez</strong> e
+            acontece <strong>somente após a configuração estar finalizada</strong>. Não realizamos
+            treinamento antes de o robô estar pronto — isso evita retrabalho e desalinhamento da equipe.
+          </div>
+        </div>
+      </Card>
 
       {!modoApresentacao && (
         <div className="space-y-3">
@@ -629,13 +724,6 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
           placeholderTextarea="Quais convênios?"
         />
 
-        <DropdownSimples
-          pergunta="Vai usar WhatsApp Web ou API oficial?"
-          valor={mapeamento.whatsapp_tipo ?? ""}
-          onChange={(v) => setCampo("whatsapp_tipo", v)}
-          modoApresentacao={modoApresentacao}
-          opcoes={["WhatsApp Web", "API Oficial"]}
-        />
       </div>
 
       {/* Perguntas específicas por integração — Clinicorp */}
