@@ -338,6 +338,29 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
             />
           </div>
         )}
+
+        <div className="mt-4 pt-4 border-t border-border">
+          <Label className="text-sm">Está em processo de migração de alguma API de WhatsApp oficial?</Label>
+          <p className="text-xs text-muted-foreground mt-1 mb-2">
+            Caso esteja vindo de outro provedor (Take, Twilio, 360dialog, etc.), é importante mapear.
+          </p>
+          {modoApresentacao ? (
+            <p className="text-sm">{validacoes.migracao_api?.valor || "—"}</p>
+          ) : (
+            <Input
+              value={validacoes.migracao_api?.valor ?? ""}
+              onChange={(e) =>
+                setData({
+                  validacoes_contratuais: {
+                    ...validacoes,
+                    migracao_api: { confirmado: true, valor: e.target.value, confirmado_em: new Date().toISOString() },
+                  },
+                })
+              }
+              placeholder="Não / Sim — de qual provedor?"
+            />
+          )}
+        </div>
       </Card>
     </div>
   );
