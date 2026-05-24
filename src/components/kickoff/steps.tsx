@@ -338,7 +338,7 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
       </div>
 
       <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-3">Diretrizes</h3>
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-4">
         {diretrizes.map((d, i) => (
           <Card key={i} className="p-4 border-border">
             <div className="text-sm font-medium mb-2">{d.titulo}</div>
@@ -346,6 +346,17 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
           </Card>
         ))}
       </div>
+
+      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-6">
+        <div className="flex items-start gap-2.5">
+          <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+          <div className="text-sm text-amber-900 leading-relaxed">
+            <strong>Treinamento e Ativação:</strong> o treinamento é feito <strong>apenas 1 vez</strong> e
+            acontece <strong>somente após a configuração estar finalizada</strong>. Não realizamos
+            treinamento antes de o robô estar pronto — isso evita retrabalho e desalinhamento da equipe.
+          </div>
+        </div>
+      </Card>
 
       {!modoApresentacao && (
         <div className="space-y-3">
