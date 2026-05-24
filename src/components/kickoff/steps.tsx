@@ -286,10 +286,10 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
 export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps) {
   const etapas = [
     { icon: PhoneCall, titulo: "Kickoff", prazo: "Hoje", atual: true },
-    { icon: Check, titulo: "1ª Configuração", prazo: "Até 7 dias úteis", atual: false },
-    { icon: AlertCircle, titulo: "Alterações", prazo: "Até 7 dias úteis", atual: false },
-    { icon: Users, titulo: "Treinamento", prazo: "3ª semana", atual: false },
-    { icon: CheckCircle2, titulo: "Finalização", prazo: "4ª semana", atual: false },
+    { icon: Check, titulo: "1ª Configuração", prazo: "7 a 15 dias úteis", atual: false },
+    { icon: AlertCircle, titulo: "Alterações", prazo: "Até ~30 dias (depende da participação do cliente)", atual: false },
+    { icon: Users, titulo: "Treinamento e Ativação", prazo: "Após configuração finalizada", atual: false },
+    { icon: CheckCircle2, titulo: "Finalização", prazo: "Após treinamento", atual: false },
   ];
 
   const diretrizes = [
