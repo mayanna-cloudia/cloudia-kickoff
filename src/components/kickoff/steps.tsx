@@ -270,13 +270,74 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
         })}
       </div>
 
-      <Card className="p-4 border-amber-200 bg-amber-50/50">
+      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-4">
         <div className="flex items-start gap-2.5">
           <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
           <p className="text-sm text-amber-900">
             A cobrança recorrente começa na data do contrato, <strong>independente do uso da plataforma</strong>.
           </p>
         </div>
+      </Card>
+
+      <Card className="p-5 border-border">
+        <Label className="text-sm">Vai usar WhatsApp Web ou API Oficial?</Label>
+        <p className="text-xs text-muted-foreground mt-1 mb-3">
+          Confirme com o cliente o tipo de WhatsApp contratado.
+        </p>
+        {modoApresentacao ? (
+          <div className="text-base font-medium">{validacoes.whatsapp_tipo?.valor || "—"}</div>
+        ) : (
+          <div className="flex gap-2 mb-3">
+            {["WhatsApp Web", "API Oficial"].map((opt) => {
+              const ativo = validacoes.whatsapp_tipo?.valor === opt;
+              return (
+                <Button
+                  key={opt}
+                  type="button"
+                  size="sm"
+                  variant={ativo ? "default" : "outline"}
+                  onClick={() =>
+                    setData({
+                      validacoes_contratuais: {
+                        ...validacoes,
+                        whatsapp_tipo: {
+                          confirmado: true,
+                          valor: opt,
+                          confirmado_em: new Date().toISOString(),
+                        },
+                      },
+                    })
+                  }
+                >
+                  {opt}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+
+        {validacoes.whatsapp_tipo?.valor === "API Oficial" && (
+          <div className="mt-3 p-3 rounded-md border border-amber-200 bg-amber-50/60">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+              <div className="text-sm text-amber-900 leading-relaxed">
+                <strong>Importante deixar muito claro pro cliente:</strong> na API Oficial,{" "}
+                <strong>não é a Cloudia</strong> que cobra templates ou bloqueia o envio depois das 24h —{" "}
+                <strong>é a Meta</strong>. Toda mensagem fora da janela de 24h precisa ser um template
+                aprovado pela Meta, e o custo dos templates é cobrado direto por ela.
+              </div>
+            </div>
+            <img
+              src="https://scontent.whatsapp.net/v/t39.8562-34/378456547_1393815101226879_3068617121358519814_n.png?_nc_sid=2fbf2a&_nc_ohc=Xq8nE7tWp8MQ7kNvgEZqB_Z&_nc_zt=3&_nc_ht=scontent.whatsapp.net"
+              alt="Janela de 24h e templates da Meta para WhatsApp Business API"
+              className="mt-3 rounded-md border border-amber-200 max-w-full h-auto block mx-auto"
+              loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
+        )}
       </Card>
     </div>
   );
