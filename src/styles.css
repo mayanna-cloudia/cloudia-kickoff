@@ -68,8 +68,8 @@
   --border: oklch(0.925 0.005 250 / 70%);
   --input: oklch(0.925 0.005 250);
   --ring: oklch(0.628 0.158 248);
-  /* #7B7DDB Cloudia purple */
-  --cloudia: oklch(0.64 0.13 285);
+  /* #3e9eef Cloudia primary blue */
+  --cloudia: oklch(0.66 0.16 240);
   --chart-1: oklch(0.628 0.158 248);
   --chart-2: oklch(0.64 0.13 285);
   --chart-3: oklch(0.72 0.13 195);
