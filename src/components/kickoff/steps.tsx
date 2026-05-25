@@ -906,14 +906,29 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                 {mensagens.map((m: any, i: number) => (
                   <div
                     key={i}
-                    className={`rounded-md px-2 py-1.5 max-w-[80%] shadow-sm ${
+                    className={`rounded-md max-w-[80%] shadow-sm overflow-hidden ${
                       m.from === "paciente" ? "bg-[#d9fdd3] self-end" : "bg-white self-start"
                     }`}
                   >
-                    <p className="text-[11px] text-[#111b21] leading-snug">{m.texto}</p>
-                    <p className="text-[8px] text-[#667781] text-right mt-0.5">
-                      {m.hora} {m.from === "paciente" && "✓✓"}
-                    </p>
+                    <div className="px-2 py-1.5">
+                      <p className="text-[11px] text-[#111b21] leading-snug">{m.texto}</p>
+                      <p className="text-[8px] text-[#667781] text-right mt-0.5">
+                        {m.hora} {m.from === "paciente" && "✓✓"}
+                      </p>
+                    </div>
+                    {m.botoes && m.botoes.length > 0 && (
+                      <div className="border-t border-black/5 flex flex-col">
+                        {m.botoes.map((b: string, bi: number) => (
+                          <button
+                            key={bi}
+                            type="button"
+                            className="text-[10px] text-[#00a5f4] font-medium py-1.5 px-2 border-t border-black/5 first:border-t-0 hover:bg-black/[0.02]"
+                          >
+                            {b}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
