@@ -793,15 +793,15 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
 }
 
 // ============ PASSO 7: Demonstração ao vivo (era passo 6) ============
-const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: { from: string; texto: string; hora: string }[] }> = {
+const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: { from: string; texto: string; hora: string; botoes?: string[] }[] }> = {
   chatgpt: {
-    label: "100% ChatGPT",
+    label: "100% IA",
     desc: "O robô conduz toda a conversa via IA. Sua equipe entra só se o paciente pedir atendente humano.",
     mensagens: [
       { from: "paciente", texto: "Bom dia!", hora: "10:37" },
       { from: "robo", texto: "Oi, tudo bem? Sou da Clínica Dr. Exemplo 👋 Como posso te ajudar hoje?", hora: "10:38" },
       { from: "paciente", texto: "Quero marcar uma consulta", hora: "10:38" },
-      { from: "robo", texto: "Claro! Você já é nossa paciente?", hora: "10:38" },
+      { from: "robo", texto: "Claro! Você já é nossa paciente?", hora: "10:38", botoes: ["Apenas integração", "IA + Integração"] },
       { from: "paciente", texto: "Primeira vez", hora: "10:39" },
       { from: "robo", texto: "Pode me dizer seu nome completo e o que está sentindo?", hora: "10:39" },
     ],
@@ -811,17 +811,17 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
     desc: "O robô usa integração com seu sistema para buscar horários e confirmar agendamentos.",
     mensagens: [
       { from: "paciente", texto: "Oi, quero remarcar minha consulta", hora: "14:20" },
-      { from: "robo", texto: "Olá Maria! Vejo sua consulta para 25/05 às 14h. Pra qual data prefere mover?", hora: "14:20" },
+      { from: "robo", texto: "Olá Maria! Vejo sua consulta para 25/05 às 14h. Pra qual data prefere mover?", hora: "14:20", botoes: ["Apenas integração", "IA + Integração"] },
       { from: "paciente", texto: "Próxima semana de manhã", hora: "14:21" },
       { from: "robo", texto: "Tenho horários disponíveis: terça 28/05 às 9h ou quinta 30/05 às 10h. Qual prefere?", hora: "14:21" },
     ],
   },
   chatgpt_integracao: {
-    label: "ChatGPT + integração",
+    label: "IA + Integração",
     desc: "Combinação: o robô qualifica o paciente com IA e integra com seu sistema para agendar.",
     mensagens: [
       { from: "paciente", texto: "Tô com uma dor de cabeça forte há 3 dias", hora: "16:10" },
-      { from: "robo", texto: "Sinto muito, Maria. Vou te ajudar a marcar com um neurologista. Você tem convênio ou prefere particular?", hora: "16:10" },
+      { from: "robo", texto: "Sinto muito, Maria. Vou te ajudar a marcar com um neurologista. Você tem convênio ou prefere particular?", hora: "16:10", botoes: ["Apenas integração", "IA + Integração"] },
       { from: "paciente", texto: "Tenho Unimed", hora: "16:11" },
       { from: "robo", texto: "Perfeito. Encontrei horário com Dr. Silva (neuro) amanhã às 14h. Posso confirmar?", hora: "16:11" },
     ],
