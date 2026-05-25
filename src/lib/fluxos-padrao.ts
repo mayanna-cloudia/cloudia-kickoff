@@ -14,9 +14,9 @@ export type TipoNo =
 export type VariacaoFluxo = "chatgpt" | "integracao" | "chatgpt_integracao";
 
 export const VARIACOES_LABEL: Record<VariacaoFluxo, string> = {
-  chatgpt: "ChatGPT",
-  integracao: "Integração",
-  chatgpt_integracao: "ChatGPT + Integração",
+  chatgpt: "IA",
+  integracao: "Apenas integração",
+  chatgpt_integracao: "IA + Integração",
 };
 
 export const CORES_NO: Record<string, { bg: string; border: string }> = {

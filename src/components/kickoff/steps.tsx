@@ -793,15 +793,15 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
 }
 
 // ============ PASSO 7: Demonstração ao vivo (era passo 6) ============
-const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: { from: string; texto: string; hora: string }[] }> = {
+const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: { from: string; texto: string; hora: string; botoes?: string[] }[] }> = {
   chatgpt: {
-    label: "100% ChatGPT",
+    label: "100% IA",
     desc: "O robô conduz toda a conversa via IA. Sua equipe entra só se o paciente pedir atendente humano.",
     mensagens: [
       { from: "paciente", texto: "Bom dia!", hora: "10:37" },
       { from: "robo", texto: "Oi, tudo bem? Sou da Clínica Dr. Exemplo 👋 Como posso te ajudar hoje?", hora: "10:38" },
       { from: "paciente", texto: "Quero marcar uma consulta", hora: "10:38" },
-      { from: "robo", texto: "Claro! Você já é nossa paciente?", hora: "10:38" },
+      { from: "robo", texto: "Claro! Você já é nossa paciente?", hora: "10:38", botoes: ["Apenas integração", "IA + Integração"] },
       { from: "paciente", texto: "Primeira vez", hora: "10:39" },
       { from: "robo", texto: "Pode me dizer seu nome completo e o que está sentindo?", hora: "10:39" },
     ],
@@ -811,17 +811,17 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
     desc: "O robô usa integração com seu sistema para buscar horários e confirmar agendamentos.",
     mensagens: [
       { from: "paciente", texto: "Oi, quero remarcar minha consulta", hora: "14:20" },
-      { from: "robo", texto: "Olá Maria! Vejo sua consulta para 25/05 às 14h. Pra qual data prefere mover?", hora: "14:20" },
+      { from: "robo", texto: "Olá Maria! Vejo sua consulta para 25/05 às 14h. Pra qual data prefere mover?", hora: "14:20", botoes: ["Apenas integração", "IA + Integração"] },
       { from: "paciente", texto: "Próxima semana de manhã", hora: "14:21" },
       { from: "robo", texto: "Tenho horários disponíveis: terça 28/05 às 9h ou quinta 30/05 às 10h. Qual prefere?", hora: "14:21" },
     ],
   },
   chatgpt_integracao: {
-    label: "ChatGPT + integração",
+    label: "IA + Integração",
     desc: "Combinação: o robô qualifica o paciente com IA e integra com seu sistema para agendar.",
     mensagens: [
       { from: "paciente", texto: "Tô com uma dor de cabeça forte há 3 dias", hora: "16:10" },
-      { from: "robo", texto: "Sinto muito, Maria. Vou te ajudar a marcar com um neurologista. Você tem convênio ou prefere particular?", hora: "16:10" },
+      { from: "robo", texto: "Sinto muito, Maria. Vou te ajudar a marcar com um neurologista. Você tem convênio ou prefere particular?", hora: "16:10", botoes: ["Apenas integração", "IA + Integração"] },
       { from: "paciente", texto: "Tenho Unimed", hora: "16:11" },
       { from: "robo", texto: "Perfeito. Encontrei horário com Dr. Silva (neuro) amanhã às 14h. Posso confirmar?", hora: "16:11" },
     ],
@@ -906,14 +906,29 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                 {mensagens.map((m: any, i: number) => (
                   <div
                     key={i}
-                    className={`rounded-md px-2 py-1.5 max-w-[80%] shadow-sm ${
+                    className={`rounded-md max-w-[80%] shadow-sm overflow-hidden ${
                       m.from === "paciente" ? "bg-[#d9fdd3] self-end" : "bg-white self-start"
                     }`}
                   >
-                    <p className="text-[11px] text-[#111b21] leading-snug">{m.texto}</p>
-                    <p className="text-[8px] text-[#667781] text-right mt-0.5">
-                      {m.hora} {m.from === "paciente" && "✓✓"}
-                    </p>
+                    <div className="px-2 py-1.5">
+                      <p className="text-[11px] text-[#111b21] leading-snug">{m.texto}</p>
+                      <p className="text-[8px] text-[#667781] text-right mt-0.5">
+                        {m.hora} {m.from === "paciente" && "✓✓"}
+                      </p>
+                    </div>
+                    {m.botoes && m.botoes.length > 0 && (
+                      <div className="border-t border-black/5 flex flex-col">
+                        {m.botoes.map((b: string, bi: number) => (
+                          <button
+                            key={bi}
+                            type="button"
+                            className="text-[10px] text-[#00a5f4] font-medium py-1.5 px-2 border-t border-black/5 first:border-t-0 hover:bg-black/[0.02]"
+                          >
+                            {b}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1005,6 +1020,21 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                           >
                             {m.hora} {m.from === "robo" && "✓✓"}
                           </p>
+                        )}
+
+                        {!isEditando && m.botoes && m.botoes.length > 0 && (
+                          <div className="mt-1.5 -mx-2.5 -mb-1.5 border-t border-white/20 flex flex-col">
+                            {m.botoes.map((b: string, bi: number) => (
+                              <div
+                                key={bi}
+                                className={`text-[10px] font-medium py-1 px-2 border-t border-white/20 first:border-t-0 ${
+                                  m.from === "robo" ? "text-blue-100" : "text-gray-300"
+                                }`}
+                              >
+                                {b}
+                              </div>
+                            ))}
+                          </div>
                         )}
 
                         {!modoApresentacao && !isEditando && (
@@ -1234,13 +1264,16 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
 
       <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end mb-3">
         <div>
-          <Label className="text-xs">Pipedrive Deal ID (numérico) ou Lead ID (UUID)</Label>
+          <Label className="text-xs">Link do deal no Pipedrive</Label>
           <Input
             value={leadId}
             onChange={(e) => setLeadId(e.target.value)}
-            placeholder="ex.: 12345 ou 7f8a-…"
+            placeholder="https://cloudia-1a6571.pipedrive.com/deal/75189"
             className="mt-1"
           />
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Cole a URL completa do negócio. Também aceita só o ID numérico ou um UUID de lead.
+          </p>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={onPreview} disabled={loadingPreview}>
           {loadingPreview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}

@@ -8,7 +8,7 @@ export const enviarResumoPipedrive = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z.object({
       kickoffId: z.string().uuid(),
-      pipedriveLeadIdOverride: z.string().min(1).max(64).optional(),
+      pipedriveLeadIdOverride: z.string().min(1).max(500).optional(),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
