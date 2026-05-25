@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useParams } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,8 +22,12 @@ import {
   Pencil,
   X,
   ExternalLink,
+  Send,
+  Loader2,
+  Eye,
 } from "lucide-react";
 import { FluxoReadOnly } from "@/components/fluxos/fluxo-read-only";
+import { enviarResumoPipedrive, previewResumoKickoff } from "@/lib/pipedrive.functions";
 
 type Cliente = {
   id: string;
@@ -1141,7 +1148,7 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
       </Card>
 
       {!modoApresentacao && (
-        <Card className="p-5 border-border bg-muted/30">
+        <Card className="p-5 border-border bg-muted/30 mb-6">
           <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-3">
             Resumo interno da reunião
           </h3>
@@ -1156,7 +1163,101 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
           </div>
         </Card>
       )}
+
+      {!modoApresentacao && <PipedriveResumoCard cliente={cliente} />}
     </div>
+  );
+}
+
+function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
+  const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
+  const preview = useServerFn(previewResumoKickoff);
+  const enviar = useServerFn(enviarResumoPipedrive);
+  const [previewText, setPreviewText] = useState<string | null>(null);
+  const [leadId, setLeadId] = useState<string>((cliente as any).pipedrive_lead_id ?? "");
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+
+  const onPreview = async () => {
+    setLoadingPreview(true);
+    try {
+      const res = await preview({ data: { kickoffId } });
+      if (res.ok) {
+        setPreviewText(res.preview);
+        if (res.pipedriveLeadId && !leadId) setLeadId(res.pipedriveLeadId);
+      } else toast.error(res.error);
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
+  const onEnviar = async () => {
+    if (!leadId.trim()) {
+      toast.error("Informe o ID do deal/lead do Pipedrive");
+      return;
+    }
+    setEnviando(true);
+    try {
+      const res = await enviar({
+        data: { kickoffId, pipedriveLeadIdOverride: leadId.trim() },
+      });
+      if (res.ok) {
+        setEnviado(true);
+        setPreviewText(res.preview);
+        toast.success("Resumo enviado ao Pipedrive!");
+      } else {
+        toast.error(res.error);
+      }
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  return (
+    <Card className="p-5 border-cloudia/30 bg-cloudia/5">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <Send className="h-4 w-4 text-cloudia" /> Enviar resumo ao Pipedrive
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Gera uma nota no deal/lead do cliente com o resumo da kickoff e o link desta reunião.
+          </p>
+        </div>
+        {enviado && (
+          <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Enviado
+          </span>
+        )}
+      </div>
+
+      <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end mb-3">
+        <div>
+          <Label className="text-xs">Pipedrive Deal ID (numérico) ou Lead ID (UUID)</Label>
+          <Input
+            value={leadId}
+            onChange={(e) => setLeadId(e.target.value)}
+            placeholder="ex.: 12345 ou 7f8a-…"
+            className="mt-1"
+          />
+        </div>
+        <Button type="button" variant="outline" size="sm" onClick={onPreview} disabled={loadingPreview}>
+          {loadingPreview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
+          <span className="ml-1.5">Preview</span>
+        </Button>
+        <Button type="button" size="sm" onClick={onEnviar} disabled={enviando || !leadId.trim()}>
+          {enviando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+          <span className="ml-1.5">Enviar</span>
+        </Button>
+      </div>
+
+      {previewText && (
+        <div className="rounded-md border border-border bg-background p-3 max-h-72 overflow-auto">
+          <pre className="text-xs whitespace-pre-wrap font-mono leading-relaxed">{previewText}</pre>
+        </div>
+      )}
+    </Card>
   );
 }
 
