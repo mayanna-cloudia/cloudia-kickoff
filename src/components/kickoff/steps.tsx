@@ -1022,6 +1022,21 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                           </p>
                         )}
 
+                        {!isEditando && m.botoes && m.botoes.length > 0 && (
+                          <div className="mt-1.5 -mx-2.5 -mb-1.5 border-t border-white/20 flex flex-col">
+                            {m.botoes.map((b: string, bi: number) => (
+                              <div
+                                key={bi}
+                                className={`text-[10px] font-medium py-1 px-2 border-t border-white/20 first:border-t-0 ${
+                                  m.from === "robo" ? "text-blue-100" : "text-gray-300"
+                                }`}
+                              >
+                                {b}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
                         {!modoApresentacao && !isEditando && (
                           <button
                             onClick={() => {
