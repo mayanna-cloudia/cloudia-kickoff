@@ -1264,13 +1264,16 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
 
       <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end mb-3">
         <div>
-          <Label className="text-xs">Pipedrive Deal ID (numérico) ou Lead ID (UUID)</Label>
+          <Label className="text-xs">Link do deal no Pipedrive</Label>
           <Input
             value={leadId}
             onChange={(e) => setLeadId(e.target.value)}
-            placeholder="ex.: 12345 ou 7f8a-…"
+            placeholder="https://cloudia-1a6571.pipedrive.com/deal/75189"
             className="mt-1"
           />
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Cole a URL completa do negócio. Também aceita só o ID numérico ou um UUID de lead.
+          </p>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={onPreview} disabled={loadingPreview}>
           {loadingPreview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
