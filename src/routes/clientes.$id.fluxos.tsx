@@ -284,8 +284,9 @@ function FluxosEditor() {
         </aside>
 
         {/* Canvas */}
-        <div className="flex-1 relative" ref={wrapperRef}>
+        <div className="flex-1 relative" ref={wrapperRef} style={{ background: "#0a0e1a" }}>
           <ReactFlow
+            className="cloudia-flow"
             nodes={nodesComCallbacks}
             edges={fluxoAtual.edges}
             onNodesChange={onNodesChange}
@@ -297,9 +298,19 @@ function FluxosEditor() {
             fitView
             proOptions={{ hideAttribution: true }}
           >
-            <Background />
-            <Controls />
-            <MiniMap pannable zoomable />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="#1e293b" />
+            <Controls position="bottom-left" showInteractive={false} />
+            <MiniMap
+              pannable
+              zoomable
+              position="bottom-right"
+              nodeColor={(n) => {
+                const tipo = (n.data as any)?.tipo as keyof typeof TIPO_CONFIG;
+                return TIPO_CONFIG[tipo]?.corHex ?? "#3b82f6";
+              }}
+              maskColor="rgba(10, 14, 26, 0.6)"
+              style={{ width: 160, height: 100 }}
+            />
           </ReactFlow>
         </div>
       </div>
