@@ -1123,6 +1123,7 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                             onClick={() => {
                               setEditandoIdx(i);
                               setTextoEdicao(m.texto);
+                              setBotoesEdicao([...(m.botoes ?? [])]);
                             }}
                             className="absolute -top-1.5 -right-1.5 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                             title="Editar mensagem"
