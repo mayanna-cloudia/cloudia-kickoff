@@ -489,11 +489,6 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
           </div>
         </div>
       </Card>
-            acontece <strong>somente após a configuração estar finalizada</strong>. Não realizamos
-            treinamento antes de o robô estar pronto — isso evita retrabalho e desalinhamento da equipe.
-          </div>
-        </div>
-      </Card>
 
       {!modoApresentacao && (
         <div className="space-y-3">
