@@ -352,20 +352,61 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
             Caso esteja vindo de outro provedor (Take, Twilio, 360dialog, etc.), é importante mapear.
           </p>
           {modoApresentacao ? (
-            <p className="text-sm">{validacoes.migracao_api?.valor || "—"}</p>
+            <p className="text-sm">
+              {validacoes.migracao_api?.resposta
+                ? `${validacoes.migracao_api.resposta === "sim" ? "Sim" : "Não"}${
+                    validacoes.migracao_api?.detalhe ? ` — ${validacoes.migracao_api.detalhe}` : ""
+                  }`
+                : "—"}
+            </p>
           ) : (
-            <Input
-              value={validacoes.migracao_api?.valor ?? ""}
-              onChange={(e) =>
-                setData({
-                  validacoes_contratuais: {
-                    ...validacoes,
-                    migracao_api: { confirmado: true, valor: e.target.value, confirmado_em: new Date().toISOString() },
-                  },
-                })
-              }
-              placeholder="Não / Sim — de qual provedor?"
-            />
+            <>
+              <div className="flex gap-2 mb-2">
+                {(["sim", "nao"] as const).map((r) => {
+                  const ativo = validacoes.migracao_api?.resposta === r;
+                  return (
+                    <Button
+                      key={r}
+                      type="button"
+                      size="sm"
+                      variant={ativo ? "default" : "outline"}
+                      onClick={() =>
+                        setData({
+                          validacoes_contratuais: {
+                            ...validacoes,
+                            migracao_api: {
+                              ...(validacoes.migracao_api ?? {}),
+                              confirmado: true,
+                              resposta: ativo ? null : r,
+                              confirmado_em: new Date().toISOString(),
+                            },
+                          },
+                        })
+                      }
+                    >
+                      {r === "sim" ? "Sim" : "Não"}
+                    </Button>
+                  );
+                })}
+              </div>
+              {validacoes.migracao_api?.resposta === "sim" && (
+                <Input
+                  value={validacoes.migracao_api?.detalhe ?? ""}
+                  onChange={(e) =>
+                    setData({
+                      validacoes_contratuais: {
+                        ...validacoes,
+                        migracao_api: {
+                          ...(validacoes.migracao_api ?? {}),
+                          detalhe: e.target.value,
+                        },
+                      },
+                    })
+                  }
+                  placeholder="De qual provedor está migrando?"
+                />
+              )}
+            </>
           )}
         </div>
       </Card>
