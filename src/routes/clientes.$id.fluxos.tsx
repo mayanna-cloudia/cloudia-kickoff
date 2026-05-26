@@ -17,10 +17,10 @@ import {
   type Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import "@/components/fluxos/cloudia-flow.css";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AuthGate } from "@/components/auth-gate";
-import { AppShell } from "@/components/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,7 +33,7 @@ import {
   type VariacaoFluxo,
   type TipoNo,
 } from "@/lib/fluxos-padrao";
-import { FluxoNode } from "@/components/fluxo/fluxo-node";
+import { FluxoNode, TIPO_CONFIG } from "@/components/fluxos/fluxo-node";
 import { useAutoSave } from "@/lib/use-auto-save";
 
 export const Route = createFileRoute("/clientes/$id/fluxos")({
@@ -41,17 +41,15 @@ export const Route = createFileRoute("/clientes/$id/fluxos")({
   component: () => (
     <AuthGate>
       <Toaster />
-      <AppShell>
-        <ReactFlowProvider>
-          <FluxosEditor />
-        </ReactFlowProvider>
-      </AppShell>
+      <ReactFlowProvider>
+        <FluxosEditor />
+      </ReactFlowProvider>
     </AuthGate>
   ),
 });
 
 const VARIACOES: VariacaoFluxo[] = ["chatgpt", "integracao", "chatgpt_integracao"];
-const nodeTypes = { fluxo: FluxoNode };
+const nodeTypes = { fluxo: FluxoNode, fluxoNode: FluxoNode };
 
 function FluxosEditor() {
   const { id } = Route.useParams();
