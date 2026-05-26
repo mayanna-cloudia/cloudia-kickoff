@@ -4,6 +4,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
   Background,
+  BackgroundVariant,
   Controls,
   MiniMap,
   addEdge,
