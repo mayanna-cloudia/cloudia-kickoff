@@ -1281,6 +1281,29 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
   );
 }
 
+function validarPipedriveLink(raw: string): { ok: true; kind: "deal" | "lead"; id: string; domain?: string } | { ok: false; error: string } {
+  const v = raw.trim();
+  if (!v) return { ok: false, error: "Informe o link ou ID do Pipedrive" };
+  if (v.startsWith("http://") || v.startsWith("https://")) {
+    try {
+      const url = new URL(v);
+      const host = url.hostname;
+      if (!host.endsWith(".pipedrive.com")) return { ok: false, error: "O domínio precisa ser *.pipedrive.com" };
+      const domain = host.replace(".pipedrive.com", "");
+      const segs = url.pathname.split("/").filter(Boolean);
+      const idx = segs.findIndex((s) => s === "deal" || s === "deals" || s === "lead" || s === "leads");
+      if (idx < 0 || !segs[idx + 1]) return { ok: false, error: "URL sem /deal/<id> ou /leads/<uuid>" };
+      const kind: "deal" | "lead" = segs[idx].startsWith("lead") ? "lead" : "deal";
+      return { ok: true, kind, id: segs[idx + 1], domain };
+    } catch {
+      return { ok: false, error: "URL inválida" };
+    }
+  }
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(v)) return { ok: true, kind: "lead", id: v };
+  if (/^\d+$/.test(v)) return { ok: true, kind: "deal", id: v };
+  return { ok: false, error: "Cole a URL completa ou o ID numérico" };
+}
+
 function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
   const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
   const preview = useServerFn(previewResumoKickoff);
@@ -1290,6 +1313,9 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
+
+  const validacao = validarPipedriveLink(leadId);
+  const linkValido = validacao.ok;
 
   const onPreview = async () => {
     setLoadingPreview(true);
@@ -1305,8 +1331,8 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
   };
 
   const onEnviar = async () => {
-    if (!leadId.trim()) {
-      toast.error("Informe o ID do deal/lead do Pipedrive");
+    if (!linkValido) {
+      toast.error((validacao as any).error);
       return;
     }
     setEnviando(true);
@@ -1353,15 +1379,29 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
             placeholder="https://cloudia-1a6571.pipedrive.com/deal/75189"
             className="mt-1"
           />
-          <p className="text-[10px] text-muted-foreground mt-1">
-            Cole a URL completa do negócio. Também aceita só o ID numérico ou um UUID de lead.
-          </p>
+          {leadId.trim() ? (
+            linkValido ? (
+              <p className="text-[10px] text-emerald-600 mt-1 flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                {validacao.kind === "deal" ? "Deal" : "Lead"} <strong>#{validacao.id}</strong>
+                {validacao.domain && <> em <strong>{validacao.domain}.pipedrive.com</strong></>}
+              </p>
+            ) : (
+              <p className="text-[10px] text-destructive mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {validacao.error}
+              </p>
+            )
+          ) : (
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Cole a URL completa do negócio. Também aceita só o ID numérico ou um UUID de lead.
+            </p>
+          )}
         </div>
         <Button type="button" variant="outline" size="sm" onClick={onPreview} disabled={loadingPreview}>
           {loadingPreview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
           <span className="ml-1.5">Preview</span>
         </Button>
-        <Button type="button" size="sm" onClick={onEnviar} disabled={enviando || !leadId.trim()}>
+        <Button type="button" size="sm" onClick={onEnviar} disabled={enviando || !linkValido}>
           {enviando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
           <span className="ml-1.5">Enviar</span>
         </Button>
