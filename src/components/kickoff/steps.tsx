@@ -277,10 +277,10 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
         })}
       </div>
 
-      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-4">
+      <Card className="p-4 border-border bg-card mb-4">
         <div className="flex items-start gap-2.5">
-          <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-          <p className="text-sm text-amber-900">
+          <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+          <p className="text-sm text-foreground">
             A cobrança recorrente começa na data do contrato, <strong>independente do uso da plataforma</strong>.
           </p>
         </div>
@@ -324,12 +324,12 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
         )}
 
         {validacoes.whatsapp_tipo?.valor === "API Oficial" && (
-          <div className="mt-3 p-3 rounded-md border border-amber-200 bg-amber-50/60">
+          <div className="mt-3 p-3 rounded-md border border-border bg-card">
             <div className="flex items-start gap-2.5">
-              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-              <div className="text-sm text-amber-900 leading-relaxed">
-                <strong>Importante deixar muito claro pro cliente:</strong> na API Oficial,{" "}
-                <strong>não é a Cloudia</strong> que cobra templates ou bloqueia o envio depois das 24h —{" "}
+              <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="text-sm text-foreground leading-relaxed">
+                <strong>Importante deixar muito claro que:</strong> na API Oficial,{" "}
+                <strong>não é a Cloudia</strong> que cobra templates ou bloqueia o envio depois das 24h,{" "}
                 <strong>é a Meta</strong>. Toda mensagem fora da janela de 24h precisa ser um template
                 aprovado pela Meta, e o custo dos templates é cobrado direto por ela.
               </div>
@@ -337,7 +337,7 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
             <img
               src="https://scontent.whatsapp.net/v/t39.8562-34/378456547_1393815101226879_3068617121358519814_n.png?_nc_sid=2fbf2a&_nc_ohc=Xq8nE7tWp8MQ7kNvgEZqB_Z&_nc_zt=3&_nc_ht=scontent.whatsapp.net"
               alt="Janela de 24h e templates da Meta para WhatsApp Business API"
-              className="mt-3 rounded-md border border-amber-200 max-w-full h-auto block mx-auto"
+              className="mt-3 rounded-md border border-border max-w-full h-auto block mx-auto"
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = "none";
@@ -352,20 +352,61 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
             Caso esteja vindo de outro provedor (Take, Twilio, 360dialog, etc.), é importante mapear.
           </p>
           {modoApresentacao ? (
-            <p className="text-sm">{validacoes.migracao_api?.valor || "—"}</p>
+            <p className="text-sm">
+              {validacoes.migracao_api?.resposta
+                ? `${validacoes.migracao_api.resposta === "sim" ? "Sim" : "Não"}${
+                    validacoes.migracao_api?.detalhe ? ` — ${validacoes.migracao_api.detalhe}` : ""
+                  }`
+                : "—"}
+            </p>
           ) : (
-            <Input
-              value={validacoes.migracao_api?.valor ?? ""}
-              onChange={(e) =>
-                setData({
-                  validacoes_contratuais: {
-                    ...validacoes,
-                    migracao_api: { confirmado: true, valor: e.target.value, confirmado_em: new Date().toISOString() },
-                  },
-                })
-              }
-              placeholder="Não / Sim — de qual provedor?"
-            />
+            <>
+              <div className="flex gap-2 mb-2">
+                {(["sim", "nao"] as const).map((r) => {
+                  const ativo = validacoes.migracao_api?.resposta === r;
+                  return (
+                    <Button
+                      key={r}
+                      type="button"
+                      size="sm"
+                      variant={ativo ? "default" : "outline"}
+                      onClick={() =>
+                        setData({
+                          validacoes_contratuais: {
+                            ...validacoes,
+                            migracao_api: {
+                              ...(validacoes.migracao_api ?? {}),
+                              confirmado: true,
+                              resposta: ativo ? null : r,
+                              confirmado_em: new Date().toISOString(),
+                            },
+                          },
+                        })
+                      }
+                    >
+                      {r === "sim" ? "Sim" : "Não"}
+                    </Button>
+                  );
+                })}
+              </div>
+              {validacoes.migracao_api?.resposta === "sim" && (
+                <Input
+                  value={validacoes.migracao_api?.detalhe ?? ""}
+                  onChange={(e) =>
+                    setData({
+                      validacoes_contratuais: {
+                        ...validacoes,
+                        migracao_api: {
+                          ...(validacoes.migracao_api ?? {}),
+                          detalhe: e.target.value,
+                        },
+                      },
+                    })
+                  }
+                  placeholder="De qual provedor está migrando?"
+                />
+              )}
+            </>
           )}
         </div>
       </Card>
@@ -438,13 +479,13 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
         ))}
       </div>
 
-      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-6">
+      <Card className="p-4 border-border bg-card mb-6">
         <div className="flex items-start gap-2.5">
-          <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-          <div className="text-sm text-amber-900 leading-relaxed">
+          <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+          <div className="text-sm text-foreground leading-relaxed">
             <strong>Treinamento e Ativação:</strong> o treinamento é feito <strong>apenas 1 vez</strong> e
             acontece <strong>somente após a configuração estar finalizada</strong>. Não realizamos
-            treinamento antes de o robô estar pronto — isso evita retrabalho e desalinhamento da equipe.
+            treinamento antes de o robô estar pronto, isso evita retrabalho e desalinhamento da equipe.
           </div>
         </div>
       </Card>
@@ -466,7 +507,7 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
           <Card className="p-5 border-border">
             <Label>Quem opera o atendimento hoje?</Label>
             <p className="text-xs text-muted-foreground mt-1 mb-2">
-              Recepção, secretária, atendente — como funciona o fluxo atual.
+              Recepção, secretária, atendente, como funciona o fluxo atual.
             </p>
             <Input
               value={data.operador_atendimento ?? ""}
@@ -749,7 +790,7 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
               onChange={(v) => setCampo("clinicorp_horarios", v)}
               modoApresentacao={modoApresentacao}
               alertaSeNao={
-                <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-900 leading-relaxed">
+                <div className="mt-2 p-2.5 bg-card border border-border rounded-md text-[11px] text-foreground leading-relaxed">
                   <AlertCircle className="h-3 w-3 inline mr-1 -mt-0.5" />
                   Verificar se o fluxo do cliente é <strong>API Online</strong> ou <strong>API Completa</strong>. Enviar
                   link de tutorial no WhatsApp.
@@ -763,7 +804,7 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
               onChange={(v) => setCampo("clinicorp_horarios_diferentes", v)}
               modoApresentacao={modoApresentacao}
               alertaSeSim={
-                <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-900 leading-relaxed">
+                <div className="mt-2 p-2.5 bg-card border border-border rounded-md text-[11px] text-foreground leading-relaxed">
                   <AlertCircle className="h-3 w-3 inline mr-1 -mt-0.5" />
                   Verificar a configuração dos <strong>slots no Clinicorp</strong>.{" "}
                   <a
@@ -836,13 +877,16 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
 
   const [editandoIdx, setEditandoIdx] = useState<number | null>(null);
   const [textoEdicao, setTextoEdicao] = useState("");
+  const [botoesEdicao, setBotoesEdicao] = useState<string[]>([]);
 
   const salvarEdicao = (idx: number) => {
     const novas = [...mensagens];
-    novas[idx] = { ...novas[idx], texto: textoEdicao };
+    const botoes = botoesEdicao.map((b) => b.trim()).filter(Boolean).slice(0, 10);
+    novas[idx] = { ...novas[idx], texto: textoEdicao, ...(botoes.length ? { botoes } : { botoes: undefined }) };
     setData({ mensagens_demo: { ...(data.mensagens_demo ?? {}), [variacaoAtual]: novas } });
     setEditandoIdx(null);
     setTextoEdicao("");
+    setBotoesEdicao([]);
   };
 
   const resetarVariacao = () => {
@@ -988,11 +1032,48 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                               className="text-[11px] bg-white/10 text-white border-white/20 min-h-[60px]"
                               autoFocus
                             />
+                            <div className="border-t border-white/20 pt-1.5 flex flex-col gap-1">
+                              <div className="text-[9px] uppercase tracking-wide text-white/60">
+                                Botões ({botoesEdicao.length}/10)
+                              </div>
+                              {botoesEdicao.map((b, bi) => (
+                                <div key={bi} className="flex gap-1">
+                                  <input
+                                    value={b}
+                                    onChange={(e) => {
+                                      const novos = [...botoesEdicao];
+                                      novos[bi] = e.target.value;
+                                      setBotoesEdicao(novos);
+                                    }}
+                                    placeholder="Texto do botão"
+                                    className="flex-1 text-[10px] bg-white/10 text-white border border-white/20 rounded px-1.5 py-0.5"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setBotoesEdicao(botoesEdicao.filter((_, idx) => idx !== bi))}
+                                    className="text-[10px] text-white/60 hover:text-white px-1"
+                                    title="Remover"
+                                  >
+                                    <X className="h-2.5 w-2.5" />
+                                  </button>
+                                </div>
+                              ))}
+                              {botoesEdicao.length < 10 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setBotoesEdicao([...botoesEdicao, ""])}
+                                  className="text-[10px] text-white/70 hover:text-white text-left px-1"
+                                >
+                                  + adicionar botão
+                                </button>
+                              )}
+                            </div>
                             <div className="flex gap-1.5 justify-end">
                               <button
                                 onClick={() => {
                                   setEditandoIdx(null);
                                   setTextoEdicao("");
+                                  setBotoesEdicao([]);
                                 }}
                                 className="text-[10px] text-white/70 hover:text-white px-2 py-0.5"
                               >
@@ -1042,6 +1123,7 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                             onClick={() => {
                               setEditandoIdx(i);
                               setTextoEdicao(m.texto);
+                              setBotoesEdicao([...(m.botoes ?? [])]);
                             }}
                             className="absolute -top-1.5 -right-1.5 bg-white/90 hover:bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                             title="Editar mensagem"
@@ -1199,6 +1281,29 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
   );
 }
 
+function validarPipedriveLink(raw: string): { ok: true; kind: "deal" | "lead"; id: string; domain?: string } | { ok: false; error: string } {
+  const v = raw.trim();
+  if (!v) return { ok: false, error: "Informe o link ou ID do Pipedrive" };
+  if (v.startsWith("http://") || v.startsWith("https://")) {
+    try {
+      const url = new URL(v);
+      const host = url.hostname;
+      if (!host.endsWith(".pipedrive.com")) return { ok: false, error: "O domínio precisa ser *.pipedrive.com" };
+      const domain = host.replace(".pipedrive.com", "");
+      const segs = url.pathname.split("/").filter(Boolean);
+      const idx = segs.findIndex((s) => s === "deal" || s === "deals" || s === "lead" || s === "leads");
+      if (idx < 0 || !segs[idx + 1]) return { ok: false, error: "URL sem /deal/<id> ou /leads/<uuid>" };
+      const kind: "deal" | "lead" = segs[idx].startsWith("lead") ? "lead" : "deal";
+      return { ok: true, kind, id: segs[idx + 1], domain };
+    } catch {
+      return { ok: false, error: "URL inválida" };
+    }
+  }
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(v)) return { ok: true, kind: "lead", id: v };
+  if (/^\d+$/.test(v)) return { ok: true, kind: "deal", id: v };
+  return { ok: false, error: "Cole a URL completa ou o ID numérico" };
+}
+
 function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
   const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
   const preview = useServerFn(previewResumoKickoff);
@@ -1208,6 +1313,9 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
+
+  const validacao = validarPipedriveLink(leadId);
+  const linkValido = validacao.ok;
 
   const onPreview = async () => {
     setLoadingPreview(true);
@@ -1223,8 +1331,8 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
   };
 
   const onEnviar = async () => {
-    if (!leadId.trim()) {
-      toast.error("Informe o ID do deal/lead do Pipedrive");
+    if (!linkValido) {
+      toast.error((validacao as any).error);
       return;
     }
     setEnviando(true);
@@ -1271,15 +1379,29 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
             placeholder="https://cloudia-1a6571.pipedrive.com/deal/75189"
             className="mt-1"
           />
-          <p className="text-[10px] text-muted-foreground mt-1">
-            Cole a URL completa do negócio. Também aceita só o ID numérico ou um UUID de lead.
-          </p>
+          {leadId.trim() ? (
+            linkValido ? (
+              <p className="text-[10px] text-emerald-600 mt-1 flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                {validacao.kind === "deal" ? "Deal" : "Lead"} <strong>#{validacao.id}</strong>
+                {validacao.domain && <> em <strong>{validacao.domain}.pipedrive.com</strong></>}
+              </p>
+            ) : (
+              <p className="text-[10px] text-destructive mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {validacao.error}
+              </p>
+            )
+          ) : (
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Cole a URL completa do negócio. Também aceita só o ID numérico ou um UUID de lead.
+            </p>
+          )}
         </div>
         <Button type="button" variant="outline" size="sm" onClick={onPreview} disabled={loadingPreview}>
           {loadingPreview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
           <span className="ml-1.5">Preview</span>
         </Button>
-        <Button type="button" size="sm" onClick={onEnviar} disabled={enviando || !leadId.trim()}>
+        <Button type="button" size="sm" onClick={onEnviar} disabled={enviando || !linkValido}>
           {enviando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
           <span className="ml-1.5">Enviar</span>
         </Button>

@@ -4,6 +4,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
   Background,
+  BackgroundVariant,
   Controls,
   MiniMap,
   addEdge,
@@ -17,10 +18,10 @@ import {
   type Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import "@/components/fluxos/cloudia-flow.css";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AuthGate } from "@/components/auth-gate";
-import { AppShell } from "@/components/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,7 +34,7 @@ import {
   type VariacaoFluxo,
   type TipoNo,
 } from "@/lib/fluxos-padrao";
-import { FluxoNode } from "@/components/fluxo/fluxo-node";
+import { FluxoNode, TIPO_CONFIG } from "@/components/fluxos/fluxo-node";
 import { useAutoSave } from "@/lib/use-auto-save";
 
 export const Route = createFileRoute("/clientes/$id/fluxos")({
@@ -41,17 +42,15 @@ export const Route = createFileRoute("/clientes/$id/fluxos")({
   component: () => (
     <AuthGate>
       <Toaster />
-      <AppShell>
-        <ReactFlowProvider>
-          <FluxosEditor />
-        </ReactFlowProvider>
-      </AppShell>
+      <ReactFlowProvider>
+        <FluxosEditor />
+      </ReactFlowProvider>
     </AuthGate>
   ),
 });
 
 const VARIACOES: VariacaoFluxo[] = ["chatgpt", "integracao", "chatgpt_integracao"];
-const nodeTypes = { fluxo: FluxoNode };
+const nodeTypes = { fluxo: FluxoNode, fluxoNode: FluxoNode };
 
 function FluxosEditor() {
   const { id } = Route.useParams();
@@ -82,11 +81,17 @@ function FluxosEditor() {
         .select("variacao,nodes,edges")
         .eq("cliente_id", id);
 
+      const normalizar = (ns: any[]) =>
+        ns.map((n) => ({ ...n, type: n.type ?? "fluxoNode" })) as Node[];
+
       const novos = { ...fluxos };
+      for (const v of VARIACOES) {
+        novos[v] = { nodes: normalizar(FLUXOS_PADRAO[v].nodes as any), edges: FLUXOS_PADRAO[v].edges as Edge[] };
+      }
       for (const r of rows ?? []) {
         const v = (r as any).variacao as VariacaoFluxo;
         novos[v] = {
-          nodes: ((r as any).nodes ?? []) as Node[],
+          nodes: normalizar(((r as any).nodes ?? []) as any[]),
           edges: ((r as any).edges ?? []) as Edge[],
         };
       }
@@ -192,7 +197,7 @@ function FluxosEditor() {
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
       const novoNo: Node = {
         id: `n_${Date.now()}`,
-        type: "fluxo",
+        type: "fluxoNode",
         position,
         data: { tipo, titulo: tipoInfo?.label ?? "Novo nó", descricao: "" },
       };
@@ -204,7 +209,11 @@ function FluxosEditor() {
 
   const restaurarPadrao = () => {
     if (!confirm(`Restaurar o fluxo padrão de "${VARIACOES_LABEL[variacao]}"? As alterações serão perdidas.`)) return;
-    setFluxoAtual({ ...FLUXOS_PADRAO[variacao] });
+    const padrao = FLUXOS_PADRAO[variacao];
+    setFluxoAtual({
+      nodes: (padrao.nodes as any[]).map((n) => ({ ...n, type: n.type ?? "fluxoNode" })) as Node[],
+      edges: padrao.edges as Edge[],
+    });
   };
 
   return (
@@ -286,8 +295,9 @@ function FluxosEditor() {
         </aside>
 
         {/* Canvas */}
-        <div className="flex-1 relative" ref={wrapperRef}>
+        <div className="flex-1 relative" ref={wrapperRef} style={{ background: "#0a0e1a" }}>
           <ReactFlow
+            className="cloudia-flow"
             nodes={nodesComCallbacks}
             edges={fluxoAtual.edges}
             onNodesChange={onNodesChange}
@@ -299,9 +309,19 @@ function FluxosEditor() {
             fitView
             proOptions={{ hideAttribution: true }}
           >
-            <Background />
-            <Controls />
-            <MiniMap pannable zoomable />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="#1e293b" />
+            <Controls position="bottom-left" showInteractive={false} />
+            <MiniMap
+              pannable
+              zoomable
+              position="bottom-right"
+              nodeColor={(n) => {
+                const tipo = (n.data as any)?.tipo as keyof typeof TIPO_CONFIG;
+                return TIPO_CONFIG[tipo]?.corHex ?? "#3b82f6";
+              }}
+              maskColor="rgba(10, 14, 26, 0.6)"
+              style={{ width: 160, height: 100 }}
+            />
           </ReactFlow>
         </div>
       </div>
