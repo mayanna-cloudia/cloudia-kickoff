@@ -479,11 +479,16 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
         ))}
       </div>
 
-      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-6">
+      <Card className="p-4 border-border bg-card mb-6">
         <div className="flex items-start gap-2.5">
-          <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-          <div className="text-sm text-amber-900 leading-relaxed">
+          <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+          <div className="text-sm text-foreground leading-relaxed">
             <strong>Treinamento e Ativação:</strong> o treinamento é feito <strong>apenas 1 vez</strong> e
+            acontece <strong>somente após a configuração estar finalizada</strong>. Não realizamos
+            treinamento antes de o robô estar pronto, isso evita retrabalho e desalinhamento da equipe.
+          </div>
+        </div>
+      </Card>
             acontece <strong>somente após a configuração estar finalizada</strong>. Não realizamos
             treinamento antes de o robô estar pronto — isso evita retrabalho e desalinhamento da equipe.
           </div>
