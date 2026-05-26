@@ -197,7 +197,7 @@ function FluxosEditor() {
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
       const novoNo: Node = {
         id: `n_${Date.now()}`,
-        type: "fluxo",
+        type: "fluxoNode",
         position,
         data: { tipo, titulo: tipoInfo?.label ?? "Novo nó", descricao: "" },
       };
@@ -209,7 +209,11 @@ function FluxosEditor() {
 
   const restaurarPadrao = () => {
     if (!confirm(`Restaurar o fluxo padrão de "${VARIACOES_LABEL[variacao]}"? As alterações serão perdidas.`)) return;
-    setFluxoAtual({ ...FLUXOS_PADRAO[variacao] });
+    const padrao = FLUXOS_PADRAO[variacao];
+    setFluxoAtual({
+      nodes: (padrao.nodes as any[]).map((n) => ({ ...n, type: n.type ?? "fluxoNode" })) as Node[],
+      edges: padrao.edges as Edge[],
+    });
   };
 
   return (
