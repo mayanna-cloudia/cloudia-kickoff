@@ -507,7 +507,7 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
           <Card className="p-5 border-border">
             <Label>Quem opera o atendimento hoje?</Label>
             <p className="text-xs text-muted-foreground mt-1 mb-2">
-              Recepção, secretária, atendente — como funciona o fluxo atual.
+              Recepção, secretária, atendente, como funciona o fluxo atual.
             </p>
             <Input
               value={data.operador_atendimento ?? ""}
