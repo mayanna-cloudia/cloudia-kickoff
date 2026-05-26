@@ -877,13 +877,16 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
 
   const [editandoIdx, setEditandoIdx] = useState<number | null>(null);
   const [textoEdicao, setTextoEdicao] = useState("");
+  const [botoesEdicao, setBotoesEdicao] = useState<string[]>([]);
 
   const salvarEdicao = (idx: number) => {
     const novas = [...mensagens];
-    novas[idx] = { ...novas[idx], texto: textoEdicao };
+    const botoes = botoesEdicao.map((b) => b.trim()).filter(Boolean).slice(0, 10);
+    novas[idx] = { ...novas[idx], texto: textoEdicao, ...(botoes.length ? { botoes } : { botoes: undefined }) };
     setData({ mensagens_demo: { ...(data.mensagens_demo ?? {}), [variacaoAtual]: novas } });
     setEditandoIdx(null);
     setTextoEdicao("");
+    setBotoesEdicao([]);
   };
 
   const resetarVariacao = () => {
