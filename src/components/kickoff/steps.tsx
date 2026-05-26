@@ -790,7 +790,7 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
               onChange={(v) => setCampo("clinicorp_horarios", v)}
               modoApresentacao={modoApresentacao}
               alertaSeNao={
-                <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-900 leading-relaxed">
+                <div className="mt-2 p-2.5 bg-card border border-border rounded-md text-[11px] text-foreground leading-relaxed">
                   <AlertCircle className="h-3 w-3 inline mr-1 -mt-0.5" />
                   Verificar se o fluxo do cliente é <strong>API Online</strong> ou <strong>API Completa</strong>. Enviar
                   link de tutorial no WhatsApp.
@@ -804,7 +804,7 @@ export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: S
               onChange={(v) => setCampo("clinicorp_horarios_diferentes", v)}
               modoApresentacao={modoApresentacao}
               alertaSeSim={
-                <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-900 leading-relaxed">
+                <div className="mt-2 p-2.5 bg-card border border-border rounded-md text-[11px] text-foreground leading-relaxed">
                   <AlertCircle className="h-3 w-3 inline mr-1 -mt-0.5" />
                   Verificar a configuração dos <strong>slots no Clinicorp</strong>.{" "}
                   <a
