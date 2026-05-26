@@ -81,11 +81,17 @@ function FluxosEditor() {
         .select("variacao,nodes,edges")
         .eq("cliente_id", id);
 
+      const normalizar = (ns: any[]) =>
+        ns.map((n) => ({ ...n, type: n.type ?? "fluxoNode" })) as Node[];
+
       const novos = { ...fluxos };
+      for (const v of VARIACOES) {
+        novos[v] = { nodes: normalizar(FLUXOS_PADRAO[v].nodes as any), edges: FLUXOS_PADRAO[v].edges as Edge[] };
+      }
       for (const r of rows ?? []) {
         const v = (r as any).variacao as VariacaoFluxo;
         novos[v] = {
-          nodes: ((r as any).nodes ?? []) as Node[],
+          nodes: normalizar(((r as any).nodes ?? []) as any[]),
           edges: ((r as any).edges ?? []) as Edge[],
         };
       }
