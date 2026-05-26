@@ -277,10 +277,10 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
         })}
       </div>
 
-      <Card className="p-4 border-amber-200 bg-amber-50/50 mb-4">
+      <Card className="p-4 border-border bg-card mb-4">
         <div className="flex items-start gap-2.5">
-          <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-          <p className="text-sm text-amber-900">
+          <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+          <p className="text-sm text-foreground">
             A cobrança recorrente começa na data do contrato, <strong>independente do uso da plataforma</strong>.
           </p>
         </div>
