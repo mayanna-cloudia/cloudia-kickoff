@@ -1032,11 +1032,48 @@ export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: S
                               className="text-[11px] bg-white/10 text-white border-white/20 min-h-[60px]"
                               autoFocus
                             />
+                            <div className="border-t border-white/20 pt-1.5 flex flex-col gap-1">
+                              <div className="text-[9px] uppercase tracking-wide text-white/60">
+                                Botões ({botoesEdicao.length}/10)
+                              </div>
+                              {botoesEdicao.map((b, bi) => (
+                                <div key={bi} className="flex gap-1">
+                                  <input
+                                    value={b}
+                                    onChange={(e) => {
+                                      const novos = [...botoesEdicao];
+                                      novos[bi] = e.target.value;
+                                      setBotoesEdicao(novos);
+                                    }}
+                                    placeholder="Texto do botão"
+                                    className="flex-1 text-[10px] bg-white/10 text-white border border-white/20 rounded px-1.5 py-0.5"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setBotoesEdicao(botoesEdicao.filter((_, idx) => idx !== bi))}
+                                    className="text-[10px] text-white/60 hover:text-white px-1"
+                                    title="Remover"
+                                  >
+                                    <X className="h-2.5 w-2.5" />
+                                  </button>
+                                </div>
+                              ))}
+                              {botoesEdicao.length < 10 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setBotoesEdicao([...botoesEdicao, ""])}
+                                  className="text-[10px] text-white/70 hover:text-white text-left px-1"
+                                >
+                                  + adicionar botão
+                                </button>
+                              )}
+                            </div>
                             <div className="flex gap-1.5 justify-end">
                               <button
                                 onClick={() => {
                                   setEditandoIdx(null);
                                   setTextoEdicao("");
+                                  setBotoesEdicao([]);
                                 }}
                                 className="text-[10px] text-white/70 hover:text-white px-2 py-0.5"
                               >
