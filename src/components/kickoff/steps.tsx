@@ -324,12 +324,12 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
         )}
 
         {validacoes.whatsapp_tipo?.valor === "API Oficial" && (
-          <div className="mt-3 p-3 rounded-md border border-amber-200 bg-amber-50/60">
+          <div className="mt-3 p-3 rounded-md border border-border bg-card">
             <div className="flex items-start gap-2.5">
-              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-              <div className="text-sm text-amber-900 leading-relaxed">
-                <strong>Importante deixar muito claro pro cliente:</strong> na API Oficial,{" "}
-                <strong>não é a Cloudia</strong> que cobra templates ou bloqueia o envio depois das 24h —{" "}
+              <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="text-sm text-foreground leading-relaxed">
+                <strong>Importante deixar muito claro que:</strong> na API Oficial,{" "}
+                <strong>não é a Cloudia</strong> que cobra templates ou bloqueia o envio depois das 24h,{" "}
                 <strong>é a Meta</strong>. Toda mensagem fora da janela de 24h precisa ser um template
                 aprovado pela Meta, e o custo dos templates é cobrado direto por ela.
               </div>
@@ -337,7 +337,7 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
             <img
               src="https://scontent.whatsapp.net/v/t39.8562-34/378456547_1393815101226879_3068617121358519814_n.png?_nc_sid=2fbf2a&_nc_ohc=Xq8nE7tWp8MQ7kNvgEZqB_Z&_nc_zt=3&_nc_ht=scontent.whatsapp.net"
               alt="Janela de 24h e templates da Meta para WhatsApp Business API"
-              className="mt-3 rounded-md border border-amber-200 max-w-full h-auto block mx-auto"
+              className="mt-3 rounded-md border border-border max-w-full h-auto block mx-auto"
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = "none";
