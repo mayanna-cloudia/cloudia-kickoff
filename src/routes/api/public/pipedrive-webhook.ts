@@ -163,24 +163,6 @@ export const Route = createFileRoute("/api/public/pipedrive-webhook")({
           .select("id, nome, idclinic")
           .single();
 
-            ok: true,
-            ignored: true,
-            reason: "cliente já existe pra esse deal",
-            clienteId: existing.id,
-          });
-        }
-
-        const { data: novo, error } = await supabaseAdmin
-          .from("clientes")
-          .insert({
-            nome,
-            medico_contato: deal.person_name ?? null,
-            pipedrive_lead_id: dealUrl,
-            status: "ativo",
-          })
-          .select("id, nome")
-          .single();
-
         if (error) {
           return Response.json({ ok: false, error: error.message }, { status: 500 });
         }
