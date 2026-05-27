@@ -99,6 +99,39 @@ export const Route = createFileRoute("/api/public/pipedrive-webhook")({
         }
         const deal = dealJson.data;
 
+        // Busca o campo customizado "Idclinic" (em Detalhes > CS no Pipedrive)
+        // Custom fields vêm como hash key no objeto do deal, então precisamos
+        // descobrir a chave dinamicamente via /dealFields.
+        let idclinic: number | null = null;
+        try {
+          const fieldsRes = await fetch(
+            `https://${domain}.pipedrive.com/api/v1/dealFields?api_token=${encodeURIComponent(apiToken)}`,
+          );
+          const fieldsJson: any = await fieldsRes.json().catch(() => ({}));
+          const idclinicField = (fieldsJson?.data ?? []).find(
+            (f: any) => typeof f?.name === "string" && f.name.toLowerCase() === "idclinic",
+          );
+          if (idclinicField?.key && deal[idclinicField.key] != null && deal[idclinicField.key] !== "") {
+            const raw = deal[idclinicField.key];
+            const parsed = typeof raw === "number" ? raw : parseInt(String(raw), 10);
+            if (!Number.isNaN(parsed)) idclinic = parsed;
+          }
+        } catch (e) {
+          console.warn("Falha ao buscar dealFields:", e);
+        }
+
+        if (idclinic == null) {
+          return Response.json(
+            {
+              ok: false,
+              error:
+                "Campo 'Idclinic' não encontrado ou vazio no deal. Preencha em Detalhes > CS > Idclinic no Pipedrive antes de criar a atividade de kickoff.",
+              dealId,
+            },
+            { status: 422 },
+          );
+        }
+
         const nome: string =
           deal.org_name ?? deal.person_name ?? deal.title ?? `Deal ${dealId}`;
         const dealUrl = `https://${domain}.pipedrive.com/deal/${dealId}`;
@@ -122,11 +155,12 @@ export const Route = createFileRoute("/api/public/pipedrive-webhook")({
           .from("clientes")
           .insert({
             nome,
+            idclinic,
             medico_contato: deal.person_name ?? null,
             pipedrive_lead_id: dealUrl,
             status: "ativo",
           })
-          .select("id, nome")
+          .select("id, nome, idclinic")
           .single();
 
         if (error) {
