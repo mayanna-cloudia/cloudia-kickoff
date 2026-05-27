@@ -18,6 +18,7 @@ import { Route as KickoffsIdRouteImport } from './routes/kickoffs.$id'
 import { Route as ClientesNovoRouteImport } from './routes/clientes.novo'
 import { Route as AlteracoesNovaRouteImport } from './routes/alteracoes.nova'
 import { Route as ClientesIdFluxosRouteImport } from './routes/clientes.$id.fluxos'
+import { Route as ApiPublicPipedriveWebhookRouteImport } from './routes/api/public/pipedrive-webhook'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -64,6 +65,12 @@ const ClientesIdFluxosRoute = ClientesIdFluxosRouteImport.update({
   path: '/clientes/$id/fluxos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPipedriveWebhookRoute =
+  ApiPublicPipedriveWebhookRouteImport.update({
+    id: '/api/public/pipedrive-webhook',
+    path: '/api/public/pipedrive-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/kickoffs/$id': typeof KickoffsIdRoute
   '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes/': typeof ClientesIndexRoute
+  '/api/public/pipedrive-webhook': typeof ApiPublicPipedriveWebhookRoute
   '/clientes/$id/fluxos': typeof ClientesIdFluxosRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +93,7 @@ export interface FileRoutesByTo {
   '/kickoffs/$id': typeof KickoffsIdRoute
   '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes': typeof ClientesIndexRoute
+  '/api/public/pipedrive-webhook': typeof ApiPublicPipedriveWebhookRoute
   '/clientes/$id/fluxos': typeof ClientesIdFluxosRoute
 }
 export interface FileRoutesById {
@@ -97,6 +106,7 @@ export interface FileRoutesById {
   '/kickoffs/$id': typeof KickoffsIdRoute
   '/kickoffs/novo': typeof KickoffsNovoRoute
   '/clientes/': typeof ClientesIndexRoute
+  '/api/public/pipedrive-webhook': typeof ApiPublicPipedriveWebhookRoute
   '/clientes/$id/fluxos': typeof ClientesIdFluxosRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/kickoffs/$id'
     | '/kickoffs/novo'
     | '/clientes/'
+    | '/api/public/pipedrive-webhook'
     | '/clientes/$id/fluxos'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/kickoffs/$id'
     | '/kickoffs/novo'
     | '/clientes'
+    | '/api/public/pipedrive-webhook'
     | '/clientes/$id/fluxos'
   id:
     | '__root__'
@@ -132,6 +144,7 @@ export interface FileRouteTypes {
     | '/kickoffs/$id'
     | '/kickoffs/novo'
     | '/clientes/'
+    | '/api/public/pipedrive-webhook'
     | '/clientes/$id/fluxos'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +157,7 @@ export interface RootRouteChildren {
   KickoffsIdRoute: typeof KickoffsIdRoute
   KickoffsNovoRoute: typeof KickoffsNovoRoute
   ClientesIndexRoute: typeof ClientesIndexRoute
+  ApiPublicPipedriveWebhookRoute: typeof ApiPublicPipedriveWebhookRoute
   ClientesIdFluxosRoute: typeof ClientesIdFluxosRoute
 }
 
@@ -212,6 +226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientesIdFluxosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/pipedrive-webhook': {
+      id: '/api/public/pipedrive-webhook'
+      path: '/api/public/pipedrive-webhook'
+      fullPath: '/api/public/pipedrive-webhook'
+      preLoaderRoute: typeof ApiPublicPipedriveWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   KickoffsIdRoute: KickoffsIdRoute,
   KickoffsNovoRoute: KickoffsNovoRoute,
   ClientesIndexRoute: ClientesIndexRoute,
+  ApiPublicPipedriveWebhookRoute: ApiPublicPipedriveWebhookRoute,
   ClientesIdFluxosRoute: ClientesIdFluxosRoute,
 }
 export const routeTree = rootRouteImport
