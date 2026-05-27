@@ -133,7 +133,7 @@ export const Route = createFileRoute("/api/public/pipedrive-webhook")({
         }
 
         const nome: string =
-          deal.org_name ?? deal.person_name ?? deal.title ?? `Deal ${dealId}`;
+          deal.org_name ?? deal.title ?? deal.person_name ?? `Deal ${dealId}`;
         const dealUrl = `https://${domain}.pipedrive.com/deal/${dealId}`;
 
         // Idempotência: se já existe cliente com esse deal, não duplica
