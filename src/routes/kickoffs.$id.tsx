@@ -13,9 +13,10 @@ import {
   Passo3Combinados,
   Passo4ValidacaoContratual,
   Passo5Cronograma,
-  Passo6Mapeamento,
-  Passo7DemoAoVivo,
-  Passo8ProximosPassos,
+  Passo6PrimeirosPassos,
+  Passo7Mapeamento,
+  Passo8DemoAoVivo,
+  Passo9ProximosPassos,
 } from "@/components/kickoff/steps";
 
 export const Route = createFileRoute("/kickoffs/$id")({
@@ -35,9 +36,10 @@ const PASSOS = [
   { num: 3, label: "Combinados", Component: Passo3Combinados },
   { num: 4, label: "Validação contratual", Component: Passo4ValidacaoContratual },
   { num: 5, label: "Cronograma", Component: Passo5Cronograma },
-  { num: 6, label: "Mapeamento", Component: Passo6Mapeamento },
-  { num: 7, label: "Demonstração", Component: Passo7DemoAoVivo },
-  { num: 8, label: "Próximos passos", Component: Passo8ProximosPassos },
+  { num: 6, label: "Primeiros passos", Component: Passo6PrimeirosPassos },
+  { num: 7, label: "Mapeamento", Component: Passo7Mapeamento },
+  { num: 8, label: "Demonstração", Component: Passo8DemoAoVivo },
+  { num: 9, label: "Próximos passos", Component: Passo9ProximosPassos },
 ];
 
 function KickoffWizard() {

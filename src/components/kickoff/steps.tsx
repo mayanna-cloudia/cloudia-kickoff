@@ -151,8 +151,13 @@ export function Passo2QuemEhQuem({ cliente, data, setData, modoApresentacao }: S
         </Card>
         <Card className="p-5 border-border">
           <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Depois</div>
-          <div className="font-medium">Suporte Cloudia</div>
-          <p className="text-xs text-muted-foreground mt-1">Após implantação, no mesmo WhatsApp.</p>
+          <div className="font-medium">CS e Suporte</div>
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+            O time de CS acompanha sua jornada de uso contínuo. O Suporte resolve problemas pontuais.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2 leading-relaxed italic">
+            Obs: ajustes simples são inclusos. Projetos novos ou funcionalidades extras podem ter prazo e custo específicos.
+          </p>
         </Card>
       </div>
 
@@ -525,9 +530,9 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
       {!modoApresentacao && (
         <div className="space-y-3">
           <Card className="p-5 border-border">
-            <Label>Quem vai ser o responsável pela implementação?</Label>
+            <Label>Quem será o responsável pela implementação e tomará as decisões finais?</Label>
             <p className="text-xs text-muted-foreground mt-1 mb-2">
-              Responsável por realizar os testes, passar feedbacks das alterações que precisam ser ajustadas, etc.
+              Essa pessoa vai testar o robô, passar feedbacks, validar configurações e dar a palavra final em cada etapa. É nosso ponto de contato direto.
             </p>
             <Input
               value={data.responsavel_implementacao ?? ""}
@@ -553,7 +558,85 @@ export function Passo5Cronograma({ data, setData, modoApresentacao }: StepProps)
   );
 }
 
-// ============ PASSO 6: Mapeamento (estrutura modular Sim/Não + textarea + perguntas por integração) ============
+// ============ PASSO 6: Primeiros passos (Fluxo de espera + engajamento) ============
+export function Passo6PrimeirosPassos({ modoApresentacao }: StepProps) {
+  return (
+    <div className="max-w-4xl mx-auto py-4">
+      <h2 className="text-2xl font-semibold mb-2">Comece a usar a Cloudia agora</h2>
+      <p className="text-sm text-muted-foreground mb-8">
+        Enquanto o seu fluxo definitivo está sendo configurado, você já pode começar a usar a plataforma.
+      </p>
+
+      <Card className="p-6 border-cloudia/40 bg-cloudia/5 mb-6">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-cloudia text-white shrink-0">
+            <MessageCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold mb-1">Fluxo de espera ativado na sua conta</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Assim que a reunião terminar, seu número já terá um <strong className="text-foreground">fluxo de espera</strong> ativo.
+              Ele não envia nada automaticamente — apenas armazena todas as mensagens que chegarem.
+              Assim, nenhum contato se perde enquanto configuramos o robô definitivo.
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <Card className="p-5 border-border">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500 mb-3">
+            <Check className="h-4 w-4" />
+          </div>
+          <div className="text-sm font-medium mb-1.5">Não consome créditos</div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Enquanto o fluxo definitivo não estiver ativo, os créditos não são contabilizados.
+          </p>
+        </Card>
+
+        <Card className="p-5 border-border">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 text-blue-500 mb-3">
+            <Users className="h-4 w-4" />
+          </div>
+          <div className="text-sm font-medium mb-1.5">Familiarize sua equipe</div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Use esse período para conhecer a plataforma — veja as mensagens, explore a Central de Mensagens, use como se fosse o WhatsApp Web.
+          </p>
+        </Card>
+
+        <Card className="p-5 border-border">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/10 text-amber-500 mb-3">
+            <Clock className="h-4 w-4" />
+          </div>
+          <div className="text-sm font-medium mb-1.5">Seu fluxo em até 7 dias</div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Em até 7 dias úteis você receberá o link de teste do seu fluxo definitivo para validar antes de ativar.
+          </p>
+        </Card>
+      </div>
+
+      <Card className="p-5 border-border">
+        <h3 className="text-sm font-medium mb-3">O que fazer agora</h3>
+        <ol className="space-y-2.5 text-sm text-muted-foreground">
+          <li className="flex items-start gap-2.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[11px] font-semibold shrink-0 mt-0.5">1</span>
+            <span>Acesse a Central de Mensagens da Cloudia e explore a plataforma com sua equipe.</span>
+          </li>
+          <li className="flex items-start gap-2.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[11px] font-semibold shrink-0 mt-0.5">2</span>
+            <span>Todas as mensagens recebidas no seu WhatsApp já vão aparecer lá — respondam por lá quando quiserem.</span>
+          </li>
+          <li className="flex items-start gap-2.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[11px] font-semibold shrink-0 mt-0.5">3</span>
+            <span>Quando receberem o link de teste, testem com calma antes de dar o ok para ativar o fluxo definitivo.</span>
+          </li>
+        </ol>
+      </Card>
+    </div>
+  );
+}
+
+// ============ PASSO 7: Mapeamento (estrutura modular Sim/Não + textarea + perguntas por integração) ============
 
 // --- Componente helper: pergunta Sim/Não com textarea condicional ---
 function SimNaoComTextarea({
@@ -705,7 +788,7 @@ function DropdownSimples({
   );
 }
 
-export function Passo6Mapeamento({ cliente, data, setData, modoApresentacao }: StepProps) {
+export function Passo7Mapeamento({ cliente, data, setData, modoApresentacao }: StepProps) {
   const mapeamento = data.mapeamento ?? {};
   const integracao = cliente.integracao ?? "";
   const semIntegracao = ["Triagem", "Triagem + IA", "100% IA"].some((s) =>
@@ -901,7 +984,7 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
   },
 };
 
-export function Passo7DemoAoVivo({ cliente, data, setData, modoApresentacao }: StepProps) {
+export function Passo8DemoAoVivo({ cliente, data, setData, modoApresentacao }: StepProps) {
   const variacaoAtual = (data.variacao_demo ?? "chatgpt") as string;
   const mensagensCustomizadas = data.mensagens_demo?.[variacaoAtual];
   const demoInicial = DEMOS_INICIAIS[variacaoAtual];
@@ -1245,7 +1328,7 @@ const COMPROMISSOS_FINAIS = [
   },
 ];
 
-export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao }: StepProps) {
+export function Passo9ProximosPassos({ cliente, data, setData, modoApresentacao }: StepProps) {
   const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
   const [gerando, setGerando] = useState(false);
   const [mostrarPDF, setMostrarPDF] = useState(false);
