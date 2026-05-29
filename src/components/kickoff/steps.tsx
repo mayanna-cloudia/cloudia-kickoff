@@ -1247,6 +1247,7 @@ const COMPROMISSOS_FINAIS = [
 
 export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao }: StepProps) {
   const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
+  const [gerando, setGerando] = useState(false);
   const validacoes = data.validacoes_contratuais ?? {};
   const confirmados = Object.values(validacoes).filter((v: any) => v?.confirmado).length;
   const mapeamento = data.mapeamento ?? {};
@@ -1311,19 +1312,54 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
 
       {!modoApresentacao && <PipedriveResumoCard cliente={cliente} />}
 
-      {/* Botão PDF — abre view de impressão em nova aba */}
+      {/* Botão PDF — gera e baixa direto, sem nova aba */}
       <div className="mt-4 flex justify-center">
-        <Link
-          to="/kickoffs/$id/pdf"
-          params={{ id: kickoffId }}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+        <button
+          type="button"
+          disabled={gerando}
+          onClick={async () => {
+            setGerando(true);
+            try {
+              // Carrega html2pdf.js do CDN se ainda não estiver carregado
+              if (!(window as any).html2pdf) {
+                await new Promise<void>((resolve, reject) => {
+                  const s = document.createElement("script");
+                  s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+                  s.onload = () => resolve();
+                  s.onerror = () => reject(new Error("Falha ao carregar html2pdf"));
+                  document.head.appendChild(s);
+                });
+              }
+
+              const el = document.getElementById("kickoff-pdf-content");
+              if (!el) throw new Error("Elemento PDF não encontrado");
+
+              await (window as any)
+                .html2pdf()
+                .set({
+                  margin: [10, 10, 10, 10],
+                  filename: `kickoff-${cliente.nome.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`,
+                  html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+                  jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+                  pagebreak: { mode: ["avoid-all", "css"] },
+                })
+                .from(el)
+                .save();
+            } catch (err) {
+              console.error(err);
+            } finally {
+              setGerando(false);
+            }
+          }}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-60"
         >
           <FileText className="h-4 w-4" />
-          Gerar PDF para o cliente
-        </Link>
+          {gerando ? "Gerando PDF…" : "Gerar PDF para o cliente"}
+        </button>
       </div>
+
+      {/* Conteúdo formatado pra o html2pdf capturar — fica fora da tela */}
+      <KickoffPDFContent cliente={cliente} data={data} />
     </div>
   );
 }
@@ -1460,6 +1496,182 @@ function PipedriveResumoCard({ cliente }: { cliente: Cliente }) {
         </div>
       )}
     </Card>
+  );
+}
+
+// ============ Conteúdo do PDF (capturado pelo html2pdf) ============
+const VARIACAO_LABEL_PDF: Record<string, string> = {
+  chatgpt: "100% IA (ChatGPT)",
+  integracao: "Apenas integração",
+  chatgpt_integracao: "IA + Integração",
+};
+
+function formatarRespostaPDF(val: any): string | null {
+  if (val == null || val === "") return null;
+  if (typeof val === "string" || typeof val === "number") return String(val);
+  if (typeof val === "object" && "resposta" in val) {
+    if (!val.resposta) return null;
+    const base = val.resposta === "sim" ? "Sim" : "Não";
+    return val.detalhe ? `${base} — ${val.detalhe}` : base;
+  }
+  if (typeof val === "object" && "valor" in val) return val.valor || null;
+  return null;
+}
+
+function KickoffPDFContent({ cliente, data }: { cliente: Cliente; data: KickoffData }) {
+  const v = data.validacoes_contratuais ?? {};
+  const m = data.mapeamento ?? {};
+  const responsavel = data.responsavel_implementacao ?? "—";
+
+  const camposContrato = [
+    { key: "plano", label: "Plano" },
+    { key: "mensalidade", label: "Mensalidade" },
+    { key: "num_usuarios", label: "Usuários" },
+    { key: "creditos", label: "Créditos" },
+    { key: "integracao", label: "Integração" },
+    { key: "whatsapp_tipo", label: "Tipo de WhatsApp" },
+  ];
+
+  const perguntasMapeamento: Record<string, string> = {
+    unidades: "Tem mais de uma unidade?",
+    sistema_agendamento: "Utiliza sistema de agendamento?",
+    especialidades_profissionais: "Especialidades e profissionais",
+    tipos_servico: "Tipos de serviço oferecidos",
+    convenios: "Atende convênios?",
+    clinicorp_horarios: "Horários cadastrados no Clinicorp?",
+    clinicorp_horarios_diferentes: "Especialidades com horários diferentes?",
+    clinicorp_migracao: "Em migração de outro sistema?",
+  };
+
+  const pStyle: React.CSSProperties = { fontFamily: "Arial, sans-serif", color: "#111827" };
+
+  return (
+    <div
+      id="kickoff-pdf-content"
+      style={{
+        position: "fixed",
+        left: "-9999px",
+        top: 0,
+        width: "794px",
+        background: "white",
+        padding: "40px",
+        ...pStyle,
+      }}
+    >
+      {/* Header */}
+      <div style={{ borderBottom: "2px solid #3b82f6", paddingBottom: 16, marginBottom: 24 }}>
+        <div style={{ fontSize: 20, fontWeight: 700, color: "#3b82f6" }}>Cloudia</div>
+        <div style={{ fontSize: 24, fontWeight: 700, margin: "6px 0" }}>{cliente.nome}</div>
+        <div style={{ fontSize: 13, color: "#6b7280" }}>
+          Reunião de kickoff
+          {cliente.gerente ? ` · Conduzida por ${cliente.gerente}` : ""}
+        </div>
+      </div>
+
+      {/* Contrato */}
+      {camposContrato.some(({ key }) => formatarRespostaPDF(v[key])) && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#3b82f6", marginBottom: 10 }}>O que foi contratado</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {camposContrato.map(({ key, label }) => {
+              const val = formatarRespostaPDF(v[key]);
+              if (!val) return null;
+              return (
+                <div key={key} style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", color: "#9ca3af", marginBottom: 3 }}>{label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>{val.replace(" ✅", "")}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Cronograma */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#3b82f6", marginBottom: 10 }}>Cronograma de implementação</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {[
+            { label: "Kickoff / Validação", prazo: "Hoje" },
+            { label: "1ª Configuração", prazo: "Até 7 dias úteis" },
+            { label: "Alterações", prazo: "Até 7 dias úteis" },
+            { label: "Treinamento", prazo: "3ª semana" },
+            { label: "Finalização", prazo: "4ª semana" },
+          ].map((e) => (
+            <div key={e.label} style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "10px 12px" }}>
+              <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", color: "#9ca3af", marginBottom: 3 }}>{e.label}</div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{e.prazo}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Responsável */}
+      {responsavel !== "—" && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#3b82f6", marginBottom: 8 }}>Responsável pela implementação</div>
+          <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "10px 12px", fontSize: 14, fontWeight: 500 }}>{responsavel}</div>
+        </div>
+      )}
+
+      {/* Desafio */}
+      {data.desafio_principal && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#3b82f6", marginBottom: 8 }}>Principal desafio e expectativa</div>
+          <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, padding: 14, fontSize: 13, lineHeight: 1.6 }}>{data.desafio_principal}</div>
+        </div>
+      )}
+
+      {/* Mapeamento */}
+      {Object.entries(perguntasMapeamento).some(([key]) => formatarRespostaPDF(m[key])) && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#3b82f6", marginBottom: 8 }}>Mapeamento da clínica</div>
+          {Object.entries(perguntasMapeamento).map(([key, pergunta]) => {
+            const val = formatarRespostaPDF(m[key]);
+            if (!val) return null;
+            return (
+              <div key={key} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #f3f4f6" }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 3 }}>{pergunta}</div>
+                <div style={{ fontSize: 13 }}>{val}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Demo */}
+      {data.variacao_demo && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#3b82f6", marginBottom: 8 }}>Demonstração apresentada</div>
+          <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 8, padding: "10px 12px", fontSize: 14 }}>
+            {VARIACAO_LABEL_PDF[data.variacao_demo] ?? data.variacao_demo}
+          </div>
+        </div>
+      )}
+
+      {/* Próximos passos */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#3b82f6", marginBottom: 10 }}>Próximos passos e compromissos</div>
+        {[
+          { titulo: "Participação do responsável", desc: "A participação ativa do responsável pela implementação é essencial — testes, feedbacks e go-live." },
+          { titulo: "Seguir o cronograma", desc: "Nosso processo é desenhado pra durar 30 dias. Qualquer atraso nos prazos adiará o go-live." },
+          ...(data.expectativa ? [{ titulo: "Pendências da reunião", desc: data.expectativa }] : []),
+        ].map((c) => (
+          <div key={c.titulo} style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#3b82f6", flexShrink: 0, marginTop: 5 }} />
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 13 }}>{c.titulo}</div>
+              <div style={{ fontSize: 12, color: "#4b5563", lineHeight: 1.5 }}>{c.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{ marginTop: 24, paddingTop: 12, borderTop: "1px solid #e5e7eb", textAlign: "center", fontSize: 11, color: "#9ca3af" }}>
+        Documento gerado em {new Date().toLocaleDateString("pt-BR")} · Cloudia · cloudia.com.br
+      </div>
+    </div>
   );
 }
 
