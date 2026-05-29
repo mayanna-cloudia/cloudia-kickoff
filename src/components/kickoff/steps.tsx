@@ -1248,6 +1248,7 @@ const COMPROMISSOS_FINAIS = [
 export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao }: StepProps) {
   const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
   const [gerando, setGerando] = useState(false);
+  const [mostrarPDF, setMostrarPDF] = useState(false);
   const validacoes = data.validacoes_contratuais ?? {};
   const confirmados = Object.values(validacoes).filter((v: any) => v?.confirmado).length;
   const mapeamento = data.mapeamento ?? {};
@@ -1312,15 +1313,19 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
 
       {!modoApresentacao && <PipedriveResumoCard cliente={cliente} />}
 
-      {/* Botão PDF — gera e baixa direto, sem nova aba */}
+      {/* Botão PDF */}
       <div className="mt-4 flex justify-center">
         <button
           type="button"
           disabled={gerando}
           onClick={async () => {
             setGerando(true);
+            setMostrarPDF(true);
+
+            // Aguarda o elemento aparecer no DOM
+            await new Promise((r) => setTimeout(r, 300));
+
             try {
-              // Carrega html2pdf.js do CDN se ainda não estiver carregado
               if (!(window as any).html2pdf) {
                 await new Promise<void>((resolve, reject) => {
                   const s = document.createElement("script");
@@ -1339,15 +1344,16 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
                 .set({
                   margin: [10, 10, 10, 10],
                   filename: `kickoff-${cliente.nome.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`,
-                  html2canvas: { scale: 2, useCORS: true, allowTaint: true },
+                  html2canvas: { scale: 2, useCORS: true, logging: false },
                   jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
                   pagebreak: { mode: ["avoid-all", "css"] },
                 })
                 .from(el)
                 .save();
             } catch (err) {
-              console.error(err);
+              console.error("Erro ao gerar PDF:", err);
             } finally {
+              setMostrarPDF(false);
               setGerando(false);
             }
           }}
@@ -1358,8 +1364,12 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
         </button>
       </div>
 
-      {/* Conteúdo formatado pra o html2pdf capturar — fica fora da tela */}
-      <KickoffPDFContent cliente={cliente} data={data} />
+      {/* Overlay com conteúdo — visível brevemente durante a captura */}
+      {mostrarPDF && (
+        <div className="fixed inset-0 z-50 bg-white overflow-auto">
+          <KickoffPDFContent cliente={cliente} data={data} />
+        </div>
+      )}
     </div>
   );
 }
@@ -1549,12 +1559,10 @@ function KickoffPDFContent({ cliente, data }: { cliente: Cliente; data: KickoffD
     <div
       id="kickoff-pdf-content"
       style={{
-        position: "fixed",
-        left: "-9999px",
-        top: 0,
         width: "794px",
         background: "white",
         padding: "40px",
+        margin: "0 auto",
         ...pStyle,
       }}
     >
