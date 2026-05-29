@@ -34,7 +34,7 @@ import {
   type VariacaoFluxo,
   type TipoNo,
 } from "@/lib/fluxos-padrao";
-import { FluxoNode, TIPO_CONFIG } from "@/components/fluxos/fluxo-node";
+import { FluxoNode, TIPO_CONFIG, NodeSidebarItem } from "@/components/fluxos/fluxo-node";
 import { useAutoSave } from "@/lib/use-auto-save";
 
 export const Route = createFileRoute("/clientes/$id/fluxos")({
@@ -270,26 +270,22 @@ function FluxosEditor() {
         <aside
           className={`${
             sidebarAberta ? "block" : "hidden"
-          } md:block w-56 border-r border-border bg-card p-3 overflow-y-auto absolute md:relative inset-y-0 left-0 z-20 md:z-0`}
+          } md:block w-56 border-r border-white/5 bg-[#14171f]/80 p-3 overflow-y-auto absolute md:relative inset-y-0 left-0 z-20 md:z-0`}
           style={{ top: 0 }}
         >
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-3 font-medium">
             Arraste para o canvas
           </div>
           <div className="flex flex-col gap-2">
             {TIPOS_NO.map((t) => (
-              <div
+              <NodeSidebarItem
                 key={t.tipo}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData("application/fluxo-tipo", t.tipo);
+                tipo={t.tipo as keyof typeof TIPO_CONFIG}
+                onDragStart={(e, tipo) => {
+                  e.dataTransfer.setData("application/fluxo-tipo", tipo);
                   e.dataTransfer.effectAllowed = "move";
                 }}
-                className="rounded-lg px-2.5 py-2 text-xs font-medium cursor-grab active:cursor-grabbing shadow-sm"
-                style={{ background: t.cor, border: `1.5px solid ${t.corBorda}`, color: "#0f172a" }}
-              >
-                {t.label}
-              </div>
+              />
             ))}
           </div>
         </aside>

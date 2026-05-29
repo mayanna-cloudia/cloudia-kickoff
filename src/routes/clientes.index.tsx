@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthGate } from "@/components/auth-gate";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Workflow } from "lucide-react";
+import { Plus, Users, Workflow, Pencil } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/clientes/")({
@@ -98,13 +98,22 @@ function ClientesList() {
                     {c.kickoffs?.[0]?.count ?? 0}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link
-                      to="/clientes/$id/fluxos"
-                      params={{ id: c.id }}
-                      className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
-                    >
-                      <Workflow className="h-3.5 w-3.5" /> Editar
-                    </Link>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        to="/clientes/$id/editar"
+                        params={{ id: c.id }}
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        <Pencil className="h-3.5 w-3.5" /> Editar
+                      </Link>
+                      <Link
+                        to="/clientes/$id/fluxos"
+                        params={{ id: c.id }}
+                        className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                      >
+                        <Workflow className="h-3.5 w-3.5" /> Fluxos
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

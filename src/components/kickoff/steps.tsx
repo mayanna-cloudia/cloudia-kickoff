@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -25,6 +26,7 @@ import {
   Send,
   Loader2,
   Eye,
+  FileText,
 } from "lucide-react";
 import { FluxoReadOnly } from "@/components/fluxos/fluxo-read-only";
 import { enviarResumoPipedrive, previewResumoKickoff } from "@/lib/pipedrive.functions";
@@ -63,6 +65,41 @@ type StepProps = {
   setData: (patch: Partial<KickoffData>) => void;
   modoApresentacao: boolean;
 };
+
+// ============ Componente de imagem com zoom ============
+function ImagemZoom({ src, alt }: { src: string; alt: string }) {
+  const [aberta, setAberta] = useState(false);
+  return (
+    <>
+      <img
+        src={src}
+        alt={alt}
+        onClick={() => setAberta(true)}
+        className="mt-3 rounded-md border border-border max-w-full h-auto block mx-auto cursor-zoom-in hover:opacity-90 transition-opacity"
+        loading="lazy"
+      />
+      {aberta && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 cursor-zoom-out"
+          onClick={() => setAberta(false)}
+        >
+          <img
+            src={src}
+            alt={alt}
+            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setAberta(false)}
+            className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full w-9 h-9 flex items-center justify-center text-lg"
+          >
+            ×
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
 
 // ============ PASSO 1: Boas-vindas ============
 export function Passo1BoasVindas({ cliente, modoApresentacao }: StepProps) {
@@ -334,14 +371,9 @@ export function Passo4ValidacaoContratual({ cliente, data, setData, modoApresent
                 aprovado pela Meta, e o custo dos templates é cobrado direto por ela.
               </div>
             </div>
-            <img
-              src="https://scontent.whatsapp.net/v/t39.8562-34/378456547_1393815101226879_3068617121358519814_n.png?_nc_sid=2fbf2a&_nc_ohc=Xq8nE7tWp8MQ7kNvgEZqB_Z&_nc_zt=3&_nc_ht=scontent.whatsapp.net"
-              alt="Janela de 24h e templates da Meta para WhatsApp Business API"
-              className="mt-3 rounded-md border border-border max-w-full h-auto block mx-auto"
-              loading="lazy"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.display = "none";
-              }}
+            <ImagemZoom
+              src="https://i.imgur.com/sqHgDcO.png"
+              alt="Processo de configuração antecipada para API Oficial WhatsApp"
             />
           </div>
         )}
@@ -1214,6 +1246,7 @@ const COMPROMISSOS_FINAIS = [
 ];
 
 export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao }: StepProps) {
+  const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
   const validacoes = data.validacoes_contratuais ?? {};
   const confirmados = Object.values(validacoes).filter((v: any) => v?.confirmado).length;
   const mapeamento = data.mapeamento ?? {};
@@ -1277,6 +1310,20 @@ export function Passo8ProximosPassos({ cliente, data, setData, modoApresentacao 
       )}
 
       {!modoApresentacao && <PipedriveResumoCard cliente={cliente} />}
+
+      {/* Botão PDF — abre view de impressão em nova aba */}
+      <div className="mt-4 flex justify-center">
+        <Link
+          to="/kickoffs/$id/pdf"
+          params={{ id: kickoffId }}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+        >
+          <FileText className="h-4 w-4" />
+          Gerar PDF para o cliente
+        </Link>
+      </div>
     </div>
   );
 }

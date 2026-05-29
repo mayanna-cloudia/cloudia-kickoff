@@ -99,16 +99,40 @@ export const Route = createFileRoute("/api/public/pipedrive-webhook")({
         }
         const deal = dealJson.data;
 
-        // Busca o campo customizado "Idclinic" (em Detalhes > CS no Pipedrive)
-        // Custom fields vêm como hash key no objeto do deal, então precisamos
-        // descobrir a chave dinamicamente via /dealFields.
+        // Busca campos customizados do deal via /dealFields (chaves são hashes, buscamos pelo nome)
+        // Campos buscados:
+        //   Detalhes > CS: Idclinic, Responsável Treinamento, Responsável Implantação
+        //   Detalhes > Origem: Categoria, Software(s) da clínica
         let idclinic: number | null = null;
+        let gerente: string | null = null;
+        let configurador: string | null = null;
+        let categoria: string | null = null;
+        let softwareClinica: string | null = null;
+
         try {
           const fieldsRes = await fetch(
             `https://${domain}.pipedrive.com/api/v1/dealFields?api_token=${encodeURIComponent(apiToken)}`,
           );
           const fieldsJson: any = await fieldsRes.json().catch(() => ({}));
-          const idclinicField = (fieldsJson?.data ?? []).find(
+          const allFields: any[] = fieldsJson?.data ?? [];
+
+          // Helper: encontrar valor de um campo pelo nome (case-insensitive)
+          const getField = (nome: string): string | null => {
+            const field = allFields.find(
+              (f: any) => typeof f?.name === "string" && f.name.toLowerCase() === nome.toLowerCase(),
+            );
+            if (!field?.key || deal[field.key] == null || deal[field.key] === "") return null;
+            const raw = deal[field.key];
+            // Campo pode ser string, number ou objeto com label (dropdown do Pipedrive)
+            if (typeof raw === "string") return raw;
+            if (typeof raw === "number") return String(raw);
+            if (typeof raw === "object" && raw?.label) return raw.label;
+            if (typeof raw === "object" && raw?.name) return raw.name;
+            return String(raw);
+          };
+
+          // Idclinic (numérico)
+          const idclinicField = allFields.find(
             (f: any) => typeof f?.name === "string" && f.name.toLowerCase() === "idclinic",
           );
           if (idclinicField?.key && deal[idclinicField.key] != null && deal[idclinicField.key] !== "") {
@@ -116,6 +140,13 @@ export const Route = createFileRoute("/api/public/pipedrive-webhook")({
             const parsed = typeof raw === "number" ? raw : parseInt(String(raw), 10);
             if (!Number.isNaN(parsed)) idclinic = parsed;
           }
+
+          // Campos textuais/dropdown
+          gerente        = getField("Responsável Treinamento");
+          configurador   = getField("Responsável Implantação");
+          categoria      = getField("Categoria");
+          softwareClinica = getField("Software(s) da clínica");
+
         } catch (e) {
           console.warn("Falha ao buscar dealFields:", e);
         }
@@ -158,6 +189,10 @@ export const Route = createFileRoute("/api/public/pipedrive-webhook")({
             idclinic,
             medico_contato: deal.person_name ?? null,
             pipedrive_lead_id: dealUrl,
+            gerente,
+            configurador,
+            especialidade: categoria,
+            integracao: softwareClinica,
             status: "ativo",
           })
           .select("id, nome, idclinic")
