@@ -967,21 +967,24 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
     desc: "O robô usa integração com seu sistema para buscar horários e confirmar agendamentos.",
     mensagens: [
       { from: "paciente", texto: "Oi, quero remarcar minha consulta", hora: "14:20" },
-      { from: "robo", texto: "Olá Maria! Vejo sua consulta para 25/05 às 14h. Pra qual data prefere mover?", hora: "14:20", botoes: ["Apenas integração", "IA + Integração"] },
-      { from: "paciente", texto: "Próxima semana de manhã", hora: "14:21" },
-      { from: "robo", texto: "Tenho horários disponíveis: terça 28/05 às 9h ou quinta 30/05 às 10h. Qual prefere?", hora: "14:21" },
+      { from: "robo", texto: "Vamos reagendar sua consulta.", hora: "14:20"},
+      { from: "robo",  texto: "Escolha a data de sua preferência. 👇", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
+      { from: "paciente", texto: "onze", hora: "14:21" },
+      { from: "robo", texto: "Selecione o horário de sua preferência. 👇", hora: "14:21", botoes: ["10:00", "10:45", "16:15", "17:20"] },
     ],
   },
   chatgpt_integracao: {
     label: "IA + Integração",
     desc: "Combinação: o robô qualifica o paciente com IA e integra com seu sistema para agendar.",
     mensagens: [
-      { from: "paciente", texto: "Tô com uma dor de cabeça forte há 3 dias", hora: "16:10" },
-      { from: "robo", texto: "Sinto muito, Maria. Vou te ajudar a marcar com um neurologista. Você tem convênio ou prefere particular?", hora: "16:10", botoes: ["Apenas integração", "IA + Integração"] },
-      { from: "paciente", texto: "Tenho Unimed", hora: "16:11" },
-      { from: "robo", texto: "Perfeito. Encontrei horário com Dr. Silva (neuro) amanhã às 14h. Posso confirmar?", hora: "16:11" },
+      { from: "paciente", texto: "Oi, quero remarcar minha consulta", hora: "14:20" },
+      { from: "robo", texto: "Vamos reagendar sua consulta.", hora: "14:20"},
+      { from: "robo",  texto: "Escolha a data de sua preferência. 👇", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
+      { from: "paciente", texto: "Qual é o endereço?", hora: "14:21" },
+      { from: "robo", texto: "Nosso endereço é Rua Exemplo, 123. Você pode me dizer qual é o seu?", hora: "14:21" },
+      { from: "robo",  texto: "Escolha a data de sua preferência. 👇", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
     ],
-  },
+  }
 };
 
 export function Passo8DemoAoVivo({ cliente, data, setData, modoApresentacao }: StepProps) {
