@@ -957,9 +957,9 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
       { from: "paciente", texto: "Bom dia!", hora: "10:37" },
       { from: "robo", texto: "Oi, tudo bem? Sou da Clínica Dr. Exemplo 👋 Como posso te ajudar hoje?", hora: "10:38" },
       { from: "paciente", texto: "Quero marcar uma consulta", hora: "10:38" },
-      { from: "robo", texto: "Claro! Você já é nossa paciente?", hora: "10:38", botoes: ["Apenas integração", "IA + Integração"] },
+      { from: "robo", texto: "Claro! Você já é nossa paciente?", hora: "10:38" },
       { from: "paciente", texto: "Primeira vez", hora: "10:39" },
-      { from: "robo", texto: "Pode me dizer seu nome completo e o que está sentindo?", hora: "10:39" },
+      { from: "robo", texto: "Que prazer te ter aqui na Clínica Dr. Exemplo! Pode me infomar seu nome completo?", hora: "10:39" },
     ],
   },
   integracao: {
@@ -967,10 +967,10 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
     desc: "O robô usa integração com seu sistema para buscar horários e confirmar agendamentos.",
     mensagens: [
       { from: "paciente", texto: "Oi, quero remarcar minha consulta", hora: "14:20" },
-      { from: "robo", texto: "Vamos reagendar sua consulta.", hora: "14:20"},
-      { from: "robo",  texto: "Escolha a data de sua preferência. 👇", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
+      { from: "robo", texto: "Oi, tudo bem? Sou da Clínica Dr. Exemplo 👋", hora: "14:20"},
+      { from: "robo",  texto: "Em qual data você deseja agendar?", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
       { from: "paciente", texto: "onze", hora: "14:21" },
-      { from: "robo", texto: "Selecione o horário de sua preferência. 👇", hora: "14:21", botoes: ["10:00", "10:45", "16:15", "17:20"] },
+      { from: "robo", texto: "Em qual horário você gostaria de agendar?", hora: "14:21", botoes: ["10:00", "10:45", "16:15", "17:20"] },
     ],
   },
   chatgpt_integracao: {
@@ -979,10 +979,10 @@ const DEMOS_INICIAIS: Record<string, { label: string; desc: string; mensagens: {
     mensagens: [
       { from: "paciente", texto: "Oi, quero remarcar minha consulta", hora: "14:20" },
       { from: "robo", texto: "Vamos reagendar sua consulta.", hora: "14:20"},
-      { from: "robo",  texto: "Escolha a data de sua preferência. 👇", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
+      { from: "robo",  texto: "Em qual data você deseja agendar?", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
       { from: "paciente", texto: "Qual é o endereço?", hora: "14:21" },
-      { from: "robo", texto: "Nosso endereço é Rua Exemplo, 123. Você pode me dizer qual é o seu?", hora: "14:21" },
-      { from: "robo",  texto: "Escolha a data de sua preferência. 👇", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
+      { from: "robo", texto: "Nosso endereço é Rua Exemplo, 123.", hora: "14:21" },
+      { from: "robo",  texto: "Em qual data você deseja agendar?", hora: "14:20", botoes: ["11/05", "15/05", "16/05", "20/05"] },
     ],
   }
 };
