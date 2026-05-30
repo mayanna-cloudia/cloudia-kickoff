@@ -1331,7 +1331,6 @@ const COMPROMISSOS_FINAIS = [
 export function Passo9ProximosPassos({ cliente, data, setData, modoApresentacao }: StepProps) {
   const { id: kickoffId } = useParams({ from: "/kickoffs/$id" });
   const [gerando, setGerando] = useState(false);
-  const [mostrarPDF, setMostrarPDF] = useState(false);
   const validacoes = data.validacoes_contratuais ?? {};
   const confirmados = Object.values(validacoes).filter((v: any) => v?.confirmado).length;
   const mapeamento = data.mapeamento ?? {};
@@ -1396,47 +1395,115 @@ export function Passo9ProximosPassos({ cliente, data, setData, modoApresentacao 
 
       {!modoApresentacao && <PipedriveResumoCard cliente={cliente} />}
 
-      {/* Botão PDF */}
+      {/* Botão PDF — gera HTML e abre janela de impressão nativa */}
       <div className="mt-4 flex justify-center">
         <button
           type="button"
           disabled={gerando}
-          onClick={async () => {
+          onClick={() => {
             setGerando(true);
-            setMostrarPDF(true);
-
-            // Aguarda o elemento aparecer no DOM
-            await new Promise((r) => setTimeout(r, 300));
-
             try {
-              if (!(window as any).html2pdf) {
-                await new Promise<void>((resolve, reject) => {
-                  const s = document.createElement("script");
-                  s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-                  s.onload = () => resolve();
-                  s.onerror = () => reject(new Error("Falha ao carregar html2pdf"));
-                  document.head.appendChild(s);
-                });
-              }
+              const v = data.validacoes_contratuais ?? {};
+              const m = data.mapeamento ?? {};
+              const responsavel = data.responsavel_implementacao ?? "—";
+              const dataReuniao = new Date().toLocaleDateString("pt-BR");
+              const variacaoLabel: Record<string, string> = {
+                chatgpt: "100% IA (ChatGPT)",
+                integracao: "Apenas integração",
+                chatgpt_integracao: "IA + Integração",
+              };
+              const fmt = (val: any): string | null => {
+                if (val == null || val === "") return null;
+                if (typeof val === "string" || typeof val === "number") return String(val);
+                if (typeof val === "object" && "resposta" in val) {
+                  if (!val.resposta) return null;
+                  const base = val.resposta === "sim" ? "Sim" : "Não";
+                  return val.detalhe ? base + " — " + val.detalhe : base;
+                }
+                if (typeof val === "object" && "valor" in val) return val.valor || null;
+                return null;
+              };
+              const card = (lbl: string, val: string) =>
+                '<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;">' +
+                '<div style="font-size:10px;font-weight:600;text-transform:uppercase;color:#9ca3af;margin-bottom:3px;">' + lbl + "</div>" +
+                '<div style="font-size:14px;font-weight:500;">' + val + "</div></div>";
+              const secTitle = (t: string) =>
+                '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#3b82f6;margin-bottom:10px;">' + t + "</div>";
 
-              const el = document.getElementById("kickoff-pdf-content");
-              if (!el) throw new Error("Elemento PDF não encontrado");
+              const camposContrato = [
+                { key: "plano", label: "Plano" },
+                { key: "mensalidade", label: "Mensalidade" },
+                { key: "num_usuarios", label: "Usuários" },
+                { key: "creditos", label: "Créditos" },
+                { key: "integracao", label: "Integração" },
+                { key: "whatsapp_tipo", label: "Tipo de WhatsApp" },
+              ];
+              const contratoCols = camposContrato
+                .map(({ key, label }) => { const vv = fmt((v as any)[key]); return vv ? card(label, vv.replace(" ✅","")) : ""; })
+                .filter(Boolean).join("");
 
-              await (window as any)
-                .html2pdf()
-                .set({
-                  margin: [10, 10, 10, 10],
-                  filename: `kickoff-${cliente.nome.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`,
-                  html2canvas: { scale: 2, useCORS: true, logging: false },
-                  jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-                  pagebreak: { mode: ["avoid-all", "css"] },
-                })
-                .from(el)
-                .save();
-            } catch (err) {
-              console.error("Erro ao gerar PDF:", err);
+              const cronCols = [
+                ["Kickoff / Validação","Hoje"],
+                ["1ª Configuração","Até 7 dias úteis"],
+                ["Alterações","Até 7 dias úteis"],
+                ["Treinamento","3ª semana"],
+                ["Finalização","4ª semana"],
+              ].map(([l,p]) => card(l,p)).join("");
+
+              const pergsMapeamento: [string,string][] = [
+                ["unidades","Tem mais de uma unidade?"],
+                ["sistema_agendamento","Utiliza sistema de agendamento?"],
+                ["especialidades_profissionais","Especialidades e profissionais"],
+                ["tipos_servico","Tipos de serviço oferecidos"],
+                ["convenios","Atende convênios?"],
+                ["clinicorp_horarios","Horários cadastrados no Clinicorp?"],
+                ["clinicorp_horarios_diferentes","Especialidades com horários diferentes?"],
+                ["clinicorp_migracao","Em migração de outro sistema?"],
+              ];
+              const mapCols = pergsMapeamento
+                .map(([key,perg]) => { const vv = fmt((m as any)[key]); return vv ?
+                  '<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f3f4f6;">' +
+                  '<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:3px;">' + perg + "</div>" +
+                  '<div style="font-size:13px;">' + vv + "</div></div>" : ""; })
+                .filter(Boolean).join("");
+
+              const passosHTML = [
+                { titulo: "Participação do responsável", desc: "A participação ativa do responsável pela implementação é essencial — testes, feedbacks e go-live." },
+                { titulo: "Seguir o cronograma", desc: "Nosso processo é desenhado pra durar 30 dias. Qualquer atraso nos prazos adiará o go-live." },
+                ...(data.expectativa ? [{ titulo: "Pendências da reunião", desc: data.expectativa }] : []),
+              ].map(c =>
+                '<div style="display:flex;gap:10px;margin-bottom:10px;">' +
+                '<div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;margin-top:5px;"></div>' +
+                '<div><div style="font-weight:600;font-size:13px;">' + c.titulo + "</div>" +
+                '<div style="font-size:12px;color:#4b5563;line-height:1.5;">' + c.desc + "</div></div></div>"
+              ).join("");
+
+              const html = [
+                "<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charset=\"UTF-8\">",
+                "<title>Kickoff — " + cliente.nome + "</title>",
+                "<style>@media print{@page{margin:1.5cm;size:A4;}body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}",
+                "body{font-family:Arial,sans-serif;color:#111827;margin:0;padding:32px;}",
+                ".g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}</style></head><body>",
+                '<div style="border-bottom:2px solid #3b82f6;padding-bottom:16px;margin-bottom:24px;">',
+                '<div style="font-size:20px;font-weight:700;color:#3b82f6;">Cloudia</div>',
+                '<div style="font-size:24px;font-weight:700;margin:6px 0;">' + cliente.nome + "</div>",
+                '<div style="font-size:13px;color:#6b7280;">Reunião de kickoff · ' + dataReuniao + (cliente.gerente ? " · Conduzida por " + cliente.gerente : "") + "</div></div>",
+                contratoCols ? '<div style="margin-bottom:20px;">' + secTitle("O que foi contratado") + '<div class=\"g2\">' + contratoCols + "</div></div>" : "",
+                '<div style="margin-bottom:20px;">' + secTitle("Cronograma de implementação") + '<div class=\"g2\">' + cronCols + "</div></div>",
+                responsavel !== "—" ? '<div style="margin-bottom:20px;">' + secTitle("Responsável pela implementação") + '<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;font-weight:500;">' + responsavel + "</div></div>" : "",
+                data.desafio_principal ? '<div style="margin-bottom:20px;">' + secTitle("Principal desafio e expectativa") + '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px;font-size:13px;line-height:1.6;">' + data.desafio_principal + "</div></div>" : "",
+                mapCols ? '<div style="margin-bottom:20px;">' + secTitle("Mapeamento da clínica") + mapCols + "</div>" : "",
+                data.variacao_demo ? '<div style="margin-bottom:20px;">' + secTitle("Demonstração apresentada") + '<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;">' + (variacaoLabel[data.variacao_demo] ?? data.variacao_demo) + "</div></div>" : "",
+                '<div style="margin-bottom:20px;">' + secTitle("Próximos passos") + passosHTML + "</div>",
+                '<div style="margin-top:24px;padding-top:12px;border-top:1px solid #e5e7eb;text-align:center;font-size:11px;color:#9ca3af;">',
+                "Documento gerado em " + dataReuniao + " · Cloudia · cloudia.com.br</div>",
+                "<script>window.onload=function(){window.print();}<\/script>",
+                "</body></html>",
+              ].join("");
+
+              const w = window.open("", "_blank");
+              if (w) { w.document.write(html); w.document.close(); }
             } finally {
-              setMostrarPDF(false);
               setGerando(false);
             }
           }}
@@ -1446,13 +1513,6 @@ export function Passo9ProximosPassos({ cliente, data, setData, modoApresentacao 
           {gerando ? "Gerando PDF…" : "Gerar PDF para o cliente"}
         </button>
       </div>
-
-      {/* Overlay com conteúdo — visível brevemente durante a captura */}
-      {mostrarPDF && (
-        <div className="fixed inset-0 z-50 bg-white overflow-auto">
-          <KickoffPDFContent cliente={cliente} data={data} />
-        </div>
-      )}
     </div>
   );
 }
