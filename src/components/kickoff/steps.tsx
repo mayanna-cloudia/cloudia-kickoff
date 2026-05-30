@@ -1403,7 +1403,7 @@ export function Passo9ProximosPassos({ cliente, data, setData, modoApresentacao 
         <button
           type="button"
           disabled={gerando}
-          onClick={() => {
+          onClick={async () => {
             setGerando(true);
             try {
               const v = data.validacoes_contratuais ?? {};
@@ -1504,8 +1504,210 @@ export function Passo9ProximosPassos({ cliente, data, setData, modoApresentacao 
                 "</body></html>",
               ].join("");
 
-              const w = window.open("", "_blank");
-              if (w) { w.document.write(html); w.document.close(); }
+              // Carrega jsPDF + AutoTable do CDN e gera PDF real sem abrir nova aba
+              if (!(window as any).jspdf) {
+                await new Promise<void>((resolve, reject) => {
+                  const s = document.createElement("script");
+                  s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+                  s.onload = () => resolve();
+                  s.onerror = () => reject();
+                  document.head.appendChild(s);
+                });
+              }
+
+              const { jsPDF } = (window as any).jspdf;
+              const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+              const azul: [number,number,number] = [55, 138, 221];
+              const cinza: [number,number,number] = [107, 114, 128];
+              const preto: [number,number,number] = [17, 24, 39];
+              const bgCard: [number,number,number] = [249, 250, 251];
+
+              let y = 15;
+              const W = 190; // largura útil (210 - 10 - 10)
+              const L = 10;  // margem esquerda
+
+              const checkPage = (needed = 12) => {
+                if (y + needed > 277) { doc.addPage(); y = 15; }
+              };
+
+              const sectionTitle = (txt: string) => {
+                checkPage(10);
+                doc.setFontSize(8);
+                doc.setFont("helvetica","bold");
+                doc.setTextColor(...azul);
+                doc.text(txt.toUpperCase(), L, y);
+                y += 6;
+              };
+
+              const cardRow = (items: {label:string;value:string}[]) => {
+                checkPage(16);
+                const colW = W / items.length;
+                items.forEach((item, i) => {
+                  const x = L + i * colW;
+                  doc.setFillColor(...bgCard);
+                  doc.setDrawColor(229,231,235);
+                  doc.roundedRect(x, y, colW - 2, 14, 2, 2, "FD");
+                  doc.setFontSize(7);
+                  doc.setFont("helvetica","bold");
+                  doc.setTextColor(...cinza);
+                  doc.text(item.label.toUpperCase(), x + 3, y + 5);
+                  doc.setFontSize(9);
+                  doc.setFont("helvetica","normal");
+                  doc.setTextColor(...preto);
+                  doc.text(item.value, x + 3, y + 11);
+                });
+                y += 17;
+              };
+
+              const textBlock = (txt: string, bg?: [number,number,number], border?: [number,number,number]) => {
+                const lines = doc.splitTextToSize(txt, W - 8);
+                const h = lines.length * 5 + 6;
+                checkPage(h + 4);
+                if (bg) {
+                  doc.setFillColor(...bg);
+                  doc.setDrawColor(...(border ?? bg));
+                  doc.roundedRect(L, y, W, h, 2, 2, "FD");
+                }
+                doc.setFontSize(9);
+                doc.setFont("helvetica","normal");
+                doc.setTextColor(...preto);
+                doc.text(lines, L + 4, y + 5);
+                y += h + 4;
+              };
+
+              // ---- Header ----
+              doc.setFont("helvetica","bold");
+              doc.setFontSize(16);
+              doc.setTextColor(...azul);
+              doc.text("Cloudia", L, y);
+              y += 7;
+              doc.setFontSize(20);
+              doc.setTextColor(...preto);
+              doc.text(cliente.nome, L, y);
+              y += 7;
+              doc.setFontSize(9);
+              doc.setFont("helvetica","normal");
+              doc.setTextColor(...cinza);
+              doc.text(
+                "Reunião de kickoff · " + dataReuniao + (cliente.gerente ? " · Conduzida por " + cliente.gerente : ""),
+                L, y
+              );
+              y += 4;
+              doc.setDrawColor(...azul);
+              doc.setLineWidth(0.5);
+              doc.line(L, y, L + W, y);
+              y += 8;
+
+              // ---- Contrato ----
+              const contratoItems = camposContrato
+                .map(({ key, label }) => { const vv = fmt((v as any)[key]); return vv ? { label, value: vv.replace(" ✅","") } : null; })
+                .filter(Boolean) as {label:string;value:string}[];
+              if (contratoItems.length > 0) {
+                sectionTitle("O que foi contratado");
+                // Cards em grupos de 3
+                for (let i = 0; i < contratoItems.length; i += 3) {
+                  cardRow(contratoItems.slice(i, i + 3));
+                }
+                y += 2;
+              }
+
+              // ---- Cronograma ----
+              sectionTitle("Cronograma de implementação");
+              const cronItems = [
+                { label: "Kickoff / Validação", value: "Hoje" },
+                { label: "1ª Configuração", value: "Até 7 dias úteis" },
+                { label: "Alterações", value: "Até 7 dias úteis" },
+                { label: "Treinamento", value: "3ª semana" },
+                { label: "Finalização", value: "4ª semana" },
+              ];
+              for (let i = 0; i < cronItems.length; i += 3) {
+                cardRow(cronItems.slice(i, i + 3));
+              }
+              y += 2;
+
+              // ---- Responsável ----
+              if (responsavel !== "—") {
+                sectionTitle("Responsável pela implementação");
+                textBlock(responsavel, bgCard, [229,231,235]);
+                y += 2;
+              }
+
+              // ---- Desafio ----
+              if (data.desafio_principal) {
+                sectionTitle("Principal desafio e expectativa");
+                textBlock(data.desafio_principal, [239,246,255], [191,219,254]);
+                y += 2;
+              }
+
+              // ---- Mapeamento ----
+              const mapEntries = pergsMapeamento
+                .map(([key,perg]) => { const vv = fmt((m as any)[key]); return vv ? { perg, vv } : null; })
+                .filter(Boolean) as {perg:string;vv:string}[];
+              if (mapEntries.length > 0) {
+                sectionTitle("Mapeamento da clínica");
+                mapEntries.forEach(({ perg, vv }) => {
+                  checkPage(12);
+                  doc.setFontSize(8);
+                  doc.setFont("helvetica","bold");
+                  doc.setTextColor(...preto);
+                  doc.text(perg, L, y);
+                  y += 4;
+                  doc.setFontSize(9);
+                  doc.setFont("helvetica","normal");
+                  const lines = doc.splitTextToSize(vv, W - 4);
+                  doc.text(lines, L + 2, y);
+                  y += lines.length * 5 + 4;
+                  doc.setDrawColor(243,244,246);
+                  doc.line(L, y - 2, L + W, y - 2);
+                });
+                y += 4;
+              }
+
+              // ---- Demo ----
+              if (data.variacao_demo) {
+                sectionTitle("Demonstração apresentada");
+                textBlock(variacaoLabel[data.variacao_demo] ?? data.variacao_demo, bgCard, [229,231,235]);
+                y += 2;
+              }
+
+              // ---- Próximos passos ----
+              sectionTitle("Próximos passos");
+              const passos = [
+                { titulo: "Participação do responsável", desc: "A participação ativa do responsável pela implementação é essencial — testes, feedbacks e go-live." },
+                { titulo: "Seguir o cronograma", desc: "Nosso processo é desenhado pra durar 30 dias. Qualquer atraso nos prazos adiará o go-live." },
+                ...(data.expectativa ? [{ titulo: "Pendências da reunião", desc: data.expectativa }] : []),
+              ];
+              passos.forEach(({ titulo, desc }) => {
+                checkPage(14);
+                doc.setFillColor(...azul);
+                doc.circle(L + 1.5, y + 1.5, 1.5, "F");
+                doc.setFontSize(9);
+                doc.setFont("helvetica","bold");
+                doc.setTextColor(...preto);
+                doc.text(titulo, L + 5, y + 3);
+                y += 6;
+                doc.setFont("helvetica","normal");
+                doc.setFontSize(8);
+                doc.setTextColor(...cinza);
+                const lines = doc.splitTextToSize(desc, W - 8);
+                doc.text(lines, L + 5, y);
+                y += lines.length * 4.5 + 5;
+              });
+
+              // ---- Footer ----
+              const totalPages = doc.getNumberOfPages();
+              for (let i = 1; i <= totalPages; i++) {
+                doc.setPage(i);
+                doc.setFontSize(7);
+                doc.setTextColor(...cinza);
+                doc.text(
+                  "Documento gerado em " + dataReuniao + " · Cloudia · cloudia.com.br · Pág. " + i + "/" + totalPages,
+                  105, 290, { align: "center" }
+                );
+              }
+
+              doc.save("kickoff-" + cliente.nome.replace(/[^a-zA-Z0-9]/g, "-") + ".pdf");
             } finally {
               setGerando(false);
             }
